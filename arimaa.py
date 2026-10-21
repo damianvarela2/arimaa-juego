@@ -81,10 +81,19 @@ def hay_pieza_congelada(t : Tablero, pos : Posicion) -> bool:
 #Pieza = Figura × Color
 #Figura = Elefante | Camello | Caballo | Perro | Gato | Conejo
 #Color = Dorado | Plateado
-def direccionDeMovimientoHabilitada(t : Tablero , pos : Posicion , d : Direccion )->bool:
-    # f:Figura, col:Color
+def direccionDeMovimientoHabilitada(t : Tablero , pos : Posicion , d : Direccion )->bool:#es uno de los predicados
+    """
+    Indica si la direccion para el movimiento habilitada
+    PRE: True
+    Args:
+    t (Tablero): El tablero actual
+    pos (Posicion): Posicion de la que parto
+    d (Direccion): Direccion a la que me desplazo
+    Returns:
+    True si el movimiento esta habilitado, False sino
+    """
     res:bool=False
-    casilla:Casilla =t[pos.fila][pos.columna]
+    casilla:Casilla =casilla_en_posicion(t,pos)
     if (casilla != VACIA):
         f:Figura=casilla.figura
         col:Color=casilla.color
@@ -93,17 +102,60 @@ def direccionDeMovimientoHabilitada(t : Tablero , pos : Posicion , d : Direccion
         res=not (es_dorado_invalido or es_plateado_invalido)
     return res
 
-def puedeMoverASecas(t:Tablero,pos:Posicion,d:Direccion)->bool:
+
+def puedeMoverASecas(t:Tablero,pos:Posicion,d:Direccion)->bool:#es uno de los predicados
+    """
+    Indica si en la direccion para el movimiento es posible mover a secas
+    PRE: True
+    Args:
+    t (Tablero): El tablero actual
+    pos (Posicion): Posicion de la que parto
+    d (Direccion): Direccion a la que me desplazo
+    Returns:
+    True si es posible el movimiento a secas, False sino
+    """
     return (hay_casilla_vacia_hacia(t,pos,d))
-def puedeArrastrar(t:Tablero,pos:Posicion,d:Direccion,d_arrastre:Direccion)->bool:
+
+def puedeArrastrar(t:Tablero,pos:Posicion,d:Direccion,d_arrastre:Direccion)->bool:#es uno de los predicados
+    """
+    Indica si en la direccion para el movimiento es posible arrastrar
+    PRE: True
+    Args:
+    t (Tablero): El tablero actual
+    pos (Posicion): Posicion de la que parto
+    d (Direccion): Direccion a la que me desplazo
+    Returns:
+    True si es posible arrastrar, False sino
+    """
     return (hay_casilla_vacia_hacia(t,pos,d) and hay_pieza_enemiga_mas_debil_hacia(t,pos,opuesta(d_arrastre)))
-def puedeEmpujar(t:Tablero,pos:Posicion,d:Direccion,d_empuje:Direccion)->bool:
+
+
+def puedeEmpujar(t:Tablero,pos:Posicion,d:Direccion,d_empuje:Direccion)->bool:#es uno de los predicados
+    """
+    Indica si en la direccion para el movimiento es posible empujar
+    PRE: True
+    Args:
+    t (Tablero): El tablero actual
+    pos (Posicion): Posicion de la que parto
+    d (Direccion): Direccion a la que me desplazo
+    Returns:
+    True si es posible empujar, False sino
+    """
     pos_enemiga:Posicion=posicion_vecina_hacia(pos,d)
     return(hay_pieza_enemiga_mas_debil_hacia(t,pos,d) and hay_casilla_vacia_hacia(t,pos_enemiga,d_empuje))
 
 
 
-def puedeRealizarAccion(t : Tablero , m : Movimiento )->bool:
+def puedeRealizarAccion(t : Tablero , m : Movimiento )->bool:#es uno de los predicados
+    """
+    Indica si es posible realizar un determinado movimiento en un tablero
+    PRE: True
+    Args:
+    t (Tablero): El tablero actual
+    m (Movimiento): el movimiento a realizar
+    Returns:
+    True si es posible realizar movimiento, False sino
+    """
     res=False
     if (m.accion==MOVER_A_SECAS and puedeMoverASecas(t, m.origen , m.pasos[0])):
         res=True
@@ -114,12 +166,21 @@ def puedeRealizarAccion(t : Tablero , m : Movimiento )->bool:
     return res
 
 
-def puede_realizar_movimiento(j : Juego, m : Movimiento) -> bool:
+def puede_realizar_movimiento(j : Juego, m : Movimiento) -> bool:#es consigna
+    """
+    Indica si el movimiento se puede realizar o no
+    PRE: juegoBienFormado (j ) ∧ movimientoBienFormado (m)
+    Args:
+    j (Juego): estado actual del juego
+    m (Movimiento): Direccion a la que me desplazo
+    Returns:
+    True si es el movimiento es posiblo, False sino
+    """
     res=False
-    if(hay_pieza_de_color(j.tablero,m.origen,j.turno) and (not (hay_pieza_congelada(j.tablero,m.origen))) and (direccionDeMovimientoHabilitada(j.tablero,m.origen,m.pasos[0])) and  (j.pasos_consumidos + len(m.pasos)<=MAX_PASOS) and (puedeRealizarAccion(j.tablero,m))):
+    if(hay_pieza_de_color(j.tablero,m.origen,j.turno) and (not (hay_pieza_congelada(j.tablero,m.origen))) and (direccionDeMovimientoHabilitada(j.tablero,m.origen,m.pasos[0])) and  (j.pasosConsumidos + len(m.pasos)<=MAX_PASOS) and (puedeRealizarAccion(j.tablero,m))):
         res=True
     return(res)
-
+#para este punto supuse el correcto funcionamiento de hay_pieza_de_color,hay_pieza_congelada,casilla_en_posicion,posicion_vecina_hacia,hay_pieza_enemiga_mas_debil_hacia,hay_casilla_vacia_hacia
 
 #### Ejercicio 5
 
