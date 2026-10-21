@@ -20,6 +20,18 @@ def direccion_desde_hasta(pos1 : Posicion, pos2 : Posicion) -> Direccion: # prag
 def pasar_turno(j : Juego) -> Juego: # pragma: no cover
     return Juego(j.tablero, oponente(j.turno), 0)
 
+
+
+#Defino copiar_tablero(t), usenla para que no se les modifique el parametro de entrada
+def copiar_tablero(t:Tablero)->Tablero:
+    res:Tablero=[]
+    for fila in t:
+        fila_copia:list[str]=[]
+        for casilla in fila:
+            fila_copia.append(casilla)
+        res.append(fila_copia)
+    return res
+
 #### Ejercicio 1
 
 def tablero_bien_formado(t : Tablero) -> bool:
@@ -189,6 +201,57 @@ def activar_trampas(t : Tablero) -> Tablero:
 
 #### Ejercicio 6
 
+# problema realizar_movimiento ( in j : Juego , in m : Movimiento ) : Juego {
+# r e q u i e r e { juegoBienFormado (j ) ∧ movimientoBienFormado (m) }
+# r e q u i e r e { puedeRealizarMovimiento (j , m) }
+# asegura { juegoBienFormado (res) }
+# asegura { juegoPostMovimiento (j , res, m) }
+# }
+# entonces j y m estan bien formados, y el movimiento es posible en el juego dado
+
+# aux juegoPostMovimiento (j0 , j1 : Juego , m : Movimiento ) :=
+# tableroPostMovimiento (j0 . tablero , j1 . tablero , m) ∧ j uegoConTurnoPosiblementeAvanzado (j0 , j1 , m)
+#hay que implementar esto
+
+# aux tableroPostMovimiento (t0 , t1 : Tablero , m : Movimiento ) :=
+# (m. acci ó n = Mover_a_secas →
+# tableroPostMoverASecas (t0 , t1 , m. origen , m. pasos [0]))
+# ∧ (m. acci ó n = Arrastrar →
+# tableroPostArrastrar (t0 , t1 , m. origen , m. pasos [0] , m. pasos [1]))
+# ∧ (m. acci ó n = Empujar →
+# tableroPostEmpujar (t0 , t1 , m. origen , m. pasos [0] , m. pasos [1]))
+
+def tableroPostMovimiento(t:Tablero,m:Movimiento)->Tablero:
+    res:Tablero=[]
+    if(m.accion==MOVER_A_SECAS):
+        res=tableroPostMoverASecas(t,m)
+    elif(m.accion==EMPUJAR):
+        res=tableroPostEmpujar(t,m)
+    elif(m.accion==ARRASTRAR):
+        res=tableroPostArrastrar(t,m)
+    return res
+
+def tableroPostMoverASecas(t:Tablero,m:Movimiento)->Tablero:
+    res:Tablero=[]
+    pos=m.origen
+    pos_destino=posicion_vecina_hacia(pos,m.pasos[0])
+    res=tableroTrasladandoPieza(t,pos,pos_destino)
+    res=activar_trampas(res)
+    return res
+
+def tableroTrasladandoPieza(t:Tablero,origen:Posicion,destino:Posicion)->Tablero:
+
+
+def tableroPostEmpujar(t:Tablero,m:Movimiento)->Tablero:
+
+def tableroPostArrastrar(t:Tablero,m:Movimiento)->Tablero:
+
+
+#definir los 3 tableros posmovimientos, hay que tener cuidado de no modificar t ni m
+# ahora bien, res debe ser un juegobienformado, y j
+
+#Estoy asumiendo el correcto funcionamiento de:
+#juego_bien_formado. posicion_vecina_hacia,tableroTrasladandoPieza(t)->t,esTableroDespuesDeActivarTodasLasTrampas
 def realizar_movimiento(j : Juego, m : Movimiento) -> Juego:
     raise Exception("No implementado")
 
