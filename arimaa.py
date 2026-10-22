@@ -51,19 +51,139 @@ def hay_pieza_de_color(t : Tablero, pos : Posicion, col : Color) -> bool:
 #### Ejercicio 3
 
 def hay_casilla_vacia_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
-    raise Exception("No implementado")
+    """
+    Indica si hay una casilla vacía en la dirección d desde la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+    
+    Args:
+        pos (Posicion): La posición desde donde se busca.
+        d (Direccion): La dirección en la que se busca.
+        
+    Returns:
+        True si hay una casilla vacía en la dirección d desde la posición pos, False si no.
+    """
+    if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) == VACIA:
+        return True
+    return False
 
 def hay_pieza_amiga_vecina(t : Tablero, pos : Posicion) -> bool:
-    raise Exception("No implementado")
+    """
+    Indica si hay una pieza amiga vecina a la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+        hayPieza (t, pos)
+
+    Args:
+        t (Tablero): El tablero en el que se busca.
+        pos (Posicion): La posición desde donde se busca.
+        
+    Returns:
+        True si hay una pieza amiga vecina a la posición pos, False si no.
+    """
+    for d in [NORTE, SUR, ESTE, OESTE]:
+        if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and hay_pieza_de_color(t, posicion_vecina_hacia(pos, d), casilla_en_posicion(t, pos).color):
+            return True
+    return False
+
 
 def hay_pieza_enemiga_mas_debil_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
-    raise Exception("No implementado")
+    """
+    Indica si hay una pieza enemiga más débil en la dirección d desde la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+        hayPieza (t, pos)
+
+    Args:
+        t (Tablero): El tablero en el que se busca.
+        pos (Posicion): La posición desde donde se busca.
+        d (Direccion): La dirección en la que se busca.
+        
+    Returns:
+        True si hay una pieza enemiga más débil en la dirección d desde la posición pos, False si no.
+    """
+    if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) != VACIA and hay_pieza_enemiga_debil(t, pos, d):
+        return True
+    return False
+
+def hay_pieza_enemiga_debil(t : Tablero, pos : Posicion, d : Direccion) -> bool:
+    """
+    Indica si hay una pieza enemiga más débil en la dirección d desde la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+        hayPieza (t, pos)
+        direccionValida (d, pos)
+        hayPiezaEnDireccionD (t, pos, d)
+
+    Args:
+        t (Tablero): El tablero en el que se busca.
+        pos (Posicion): La posición desde donde se busca.
+        d (Direccion): La dirección en la que se busca.
+        
+    Returns:
+        True si hay una pieza enemiga más débil en la dirección d desde la posición pos, False si no.
+    """
+    if casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).fuerza < casilla_en_posicion(t, pos).fuerza and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
+        return True
+    return False
 
 def hay_pieza_enemiga_mas_fuerte_vecina(t : Tablero, pos : Posicion) -> bool:
-    raise Exception("No implementado")
+    """
+    Indica si hay una pieza enemiga más fuerte vecina a la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+        hayPieza (t, pos)
+
+    Args:
+        t (Tablero): El tablero en el que se busca.
+        pos (Posicion): La posición desde donde se busca.
+
+        
+    Returns:
+        True si hay una pieza enemiga más fuerte vecina a la posición pos, False si no.
+    """
+    for d in [NORTE, SUR, ESTE, OESTE]:
+        if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) != VACIA and hay_pieza_enemiga_fuerte_hacia(t, pos, d):
+            return True
+    return False
+
+def hay_pieza_enemiga_fuerte_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
+    """
+    Indica si hay una pieza enemiga más fuerte en la dirección d desde la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+        hayPieza (t, pos)
+        direccionValida (d, pos)
+        hayPiezaEnDireccionD (t, pos, d)
+
+    Args:
+        t (Tablero): El tablero en el que se busca.
+        pos (Posicion): La posición desde donde se busca.
+        d (Direccion): La dirección en la que se busca.
+        
+    Returns:
+        True si hay una pieza enemiga más fuerte en la dirección d desde la posición pos, False si no.
+    """
+    if casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).fuerza > casilla_en_posicion(t, pos).fuerza and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
+        return True
+    return False
 
 def hay_pieza_congelada(t : Tablero, pos : Posicion) -> bool:
-    raise Exception("No implementado")
+    """
+    Indica si hay una pieza congelada en la posición pos.
+
+    PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
+
+    Args:
+        t (Tablero): El tablero en el que se busca.
+        pos (Posicion): La posición desde donde se busca.
+
+    Returns:
+        True si hay una pieza congelada en la posición pos, False si no.
+    """
+    if hay_pieza_de_color(t, pos, casilla_en_posicion(t, pos).color) and hay_pieza_enemiga_mas_fuerte_vecina(t, pos) and not hay_pieza_amiga_vecina(t, pos):
+        return True
+    return False
 
 #### Ejercicio 4
 
