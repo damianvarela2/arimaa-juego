@@ -26,12 +26,13 @@ def pasar_turno(j : Juego) -> Juego: # pragma: no cover
 def copiar_tablero(t:Tablero)->Tablero:
     res:Tablero=[]
     for fila in t:
-        fila_copia:list[str]=[]
+        fila_copia:list[Casilla]=[]
         for casilla in fila:
             fila_copia.append(casilla)
         res.append(fila_copia)
     return res
 
+    
 #### Ejercicio 1
 
 def tablero_bien_formado(t : Tablero) -> bool:
@@ -168,7 +169,7 @@ def puedeRealizarAccion(t : Tablero , m : Movimiento )->bool:#es uno de los pred
     Returns:
     True si es posible realizar movimiento, False sino
     """
-    res=False
+    res:bool=False
     if (m.accion==MOVER_A_SECAS and puedeMoverASecas(t, m.origen , m.pasos[0])):
         res=True
     elif(m.accion==ARRASTRAR and puedeArrastrar(t, m.origen , m.pasos[0] , m.pasos[1])):
@@ -188,8 +189,8 @@ def puede_realizar_movimiento(j : Juego, m : Movimiento) -> bool:#es consigna
     Returns:
     True si es el movimiento es posiblo, False sino
     """
-    res=False
-    if(hay_pieza_de_color(j.tablero,m.origen,j.turno) and (not (hay_pieza_congelada(j.tablero,m.origen))) and (direccionDeMovimientoHabilitada(j.tablero,m.origen,m.pasos[0])) and  (j.pasosConsumidos + len(m.pasos)<=MAX_PASOS) and (puedeRealizarAccion(j.tablero,m))):
+    res:bool=False
+    if(hay_pieza_de_color(j.tablero,m.origen,j.turno) and (not (hay_pieza_congelada(j.tablero,m.origen))) and (direccionDeMovimientoHabilitada(j.tablero,m.origen,m.pasos[0])) and  (j.pasos_consumidos + len(m.pasos)<=MAX_PASOS) and (puedeRealizarAccion(j.tablero,m))):
         res=True
     return(res)
 #para este punto supuse el correcto funcionamiento de hay_pieza_de_color,hay_pieza_congelada,casilla_en_posicion,posicion_vecina_hacia,hay_pieza_enemiga_mas_debil_hacia,hay_casilla_vacia_hacia
@@ -233,27 +234,54 @@ def tableroPostMovimiento(t:Tablero,m:Movimiento)->Tablero:
 
 def tableroPostMoverASecas(t:Tablero,m:Movimiento)->Tablero:
     res:Tablero=[]
-    pos=m.origen
-    pos_destino=posicion_vecina_hacia(pos,m.pasos[0])
+    pos:Posicion=m.origen
+    pos_destino:Posicion=posicion_vecina_hacia(pos,m.pasos[0])
     res=tableroTrasladandoPieza(t,pos,pos_destino)
     res=activar_trampas(res)
     return res
 
-def tableroTrasladandoPieza(t:Tablero,origen:Posicion,destino:Posicion)->Tablero:
-
 
 def tableroPostEmpujar(t:Tablero,m:Movimiento)->Tablero:
+    res:Tablero=copiar_tablero(t)
+    pos_enemiga:Posicion = posicion_vecina_hacia(m.origen, m.pasos[0])
+    pos_objetivo:Posicion = posicion_vecina_hacia(pos_enemiga, m.pasos[1])
+    res=tableroTrasladandoPieza(res, pos_enemiga,pos_objetivo)
+    res=tableroTrasladandoPieza(res, m.origen,pos_enemiga)
+    res = activar_trampas(res)
+    return res
+
 
 def tableroPostArrastrar(t:Tablero,m:Movimiento)->Tablero:
+    res:Tablero=copiar_tablero(t)
+    pos_enemiga:Posicion=posicion_vecina_hacia(m.origen,opuesta(m.pasos[1]))
+    pos_objetivo:Posicion=posicion_vecina_hacia(m.origen,m.pasos[0])
+    res=tableroTrasladandoPieza(res, m.origen,pos_objetivo)
+    res=tableroTrasladandoPieza(res,pos_enemiga ,m.origen)
+    res = activar_trampas(res)
+    return res
 
-
+def hayQueCambiarDeTurno(j:Juego,m:Movimiento)->bool:
+    return((j.pasos_consumidos + len(m.pasos))==MAX_PASOS)
 #definir los 3 tableros posmovimientos, hay que tener cuidado de no modificar t ni m
 # ahora bien, res debe ser un juegobienformado, y j
 
 #Estoy asumiendo el correcto funcionamiento de:
 #juego_bien_formado. posicion_vecina_hacia,tableroTrasladandoPieza(t)->t,esTableroDespuesDeActivarTodasLasTrampas
 def realizar_movimiento(j : Juego, m : Movimiento) -> Juego:
-    raise Exception("No implementado")
+    t:Tablero=copiar_tablero(j.tablero)
+    t=tableroPostMovimiento(t,m)
+    cambio_de_turno:Color=j.turno
+    pasos_proximo:int=j.pasos_consumidos + len(m.pasos)
+    if(hayQueCambiarDeTurno(j,m)):
+        cambio_de_turno=oponente(j.turno)
+        pasos_proximo=0
+    return (Juego(t,cambio_de_turno,pasos_proximo))#asi vi que se definia un nuevo juego, nose si esta habilitado
+    
+
+
+        
+
+
 
 #### Ejercicio 7
 
