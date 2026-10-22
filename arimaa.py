@@ -330,7 +330,7 @@ def hay_pieza_enemiga_mas_debil_hacia(t : Tablero, pos : Posicion, d : Direccion
 
 def hay_pieza_enemiga_debil(t : Tablero, pos : Posicion, d : Direccion) -> bool:
     """
-    Indica si hay una pieza enemiga más débil en la dirección d desde la posición pos.
+    Indica si la pieza vecina es una enemiga más débil en la dirección d desde la posición pos.
 
     PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
         hayPieza (t, pos)
@@ -343,7 +343,7 @@ def hay_pieza_enemiga_debil(t : Tablero, pos : Posicion, d : Direccion) -> bool:
         d (Direccion): La dirección en la que se busca.
         
     Returns:
-        True si hay una pieza enemiga más débil en la dirección d desde la posición pos, False si no.
+        True si la pieza vecina es una enemiga más débil en la dirección d desde la posición pos, False si no.
     """
     if casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).fuerza < casilla_en_posicion(t, pos).fuerza and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
         return True
@@ -371,7 +371,7 @@ def hay_pieza_enemiga_mas_fuerte_vecina(t : Tablero, pos : Posicion) -> bool:
 
 def hay_pieza_enemiga_fuerte_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
     """
-    Indica si hay una pieza enemiga más fuerte en la dirección d desde la posición pos.
+    Indica si la pieza vecina es una enemiga más fuerte en la dirección d desde la posición pos.
 
     PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
         hayPieza (t, pos)
@@ -384,7 +384,7 @@ def hay_pieza_enemiga_fuerte_hacia(t : Tablero, pos : Posicion, d : Direccion) -
         d (Direccion): La dirección en la que se busca.
         
     Returns:
-        True si hay una pieza enemiga más fuerte en la dirección d desde la posición pos, False si no.
+        True si la pieza vecina es una enemiga más fuerte en la dirección d desde la posición pos, False si no.
     """
     if casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).fuerza > casilla_en_posicion(t, pos).fuerza and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
         return True
