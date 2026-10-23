@@ -272,16 +272,71 @@ def juego_bien_formado(j : Juego) -> bool:
 #### Ejercicio 2
 
 def posicion_vecina_hacia(pos : Posicion, d : Direccion) -> Posicion:
-    raise Exception("No implementado")
+    """
+    Dada una dirección *d*, devuelve una posición *Posicion* vecina en esa dirección
+    PRE : True
+    Args:
+        pos (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+        d (Direccion): NORTE, SUR, ESTE, OESTE
+    Returns:
+        Posicion (Posicion): Una tupla de enteros al NORTE, SUR, ESTE, OESTE de pos dependiendo d
+    """
+
+    if d == NORTE:
+        res = Posicion(pos.fila + 1, pos.columna)
+    if d == SUR:
+        res = Posicion(pos.fila -1, pos.columna)
+    if d == ESTE:
+        res = Posicion(pos.fila, pos.columna + 1)
+    if d == OESTE:
+        res = Posicion(pos.fila, pos.columna - 1)
+    return res
 
 def casilla_en_posicion(t : Tablero, p : Posicion) -> Casilla:
-    raise Exception("No implementado")
+    """
+    Dado un tablero *t* y una posición *p*, devuelve la Casilla (VACIA O FIGURA) ubicada en esa posicion *p* de tablero *t*
+    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(p) == True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
+        p (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+    Returns:
+        Casilla (VACIA O FIGURA): Devuelve la casilla (VACIA O FIGURA) correspondiente a esa posicion *p* en el tablero *t*
+    """
+    res = t[p.fila][p.columna]
+    return res
 
 def hay_casilla_vacia(t : Tablero, pos : Posicion) -> bool:
-    raise Exception("No implementado")
+    """
+    Dado un tablero *t* y una posición *p*, devuelve la True si el valor de la Casilla (VACIA O FIGURA) en esa posicion *p* es VACIA
+    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(p) == True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
+        p (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+    Returns:
+        True si Casilla (VACIA O FIGURA) es VACIA
+    """
+    res : bool = False
+    casilla : Casilla = casilla_en_posicion(t, pos)
+    if casilla == VACIA:
+        res = True
+    return res
 
 def hay_pieza_de_color(t : Tablero, pos : Posicion, col : Color) -> bool:
-    raise Exception("No implementado")
+    """
+    Dado un tablero *t* y una posición *p*, y un color *col*, devuelve True si el color de la FIGURA en la CASILLA correspondiente a POSICION es igual a col. 
+    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(p) == True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
+        p (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+        col (Color): La posicion 1 en la tupla FIGURA. str que representa el color de las piezas (Plateado o Dorado)
+    Returns:
+        True si el color (Color) de la Pieza (Figura, Color) en la posicion *p* de tablero *t* es igual a al color ingresado *col*
+    """
+    res : bool = False
+    casilla : Casilla = casilla_en_posicion(t, pos)
+    if not hay_casilla_vacia(t, pos) and casilla.color == col:
+        res = True
+    return res
 
 #### Ejercicio 3
 
@@ -539,8 +594,72 @@ def puede_realizar_movimiento(j : Juego, m : Movimiento) -> bool:#es consigna
 
 #### Ejercicio 5
 
+def sacar_pieza_tablero(t: Tablero, postrampa: Posicion) -> Tablero: #Es funcion auxiliar
+    """
+        Dado un tablero *t* y una posición trampa *postrampa*, devuelve el tablero resultante de activar esa trampa: la casilla queda VACIA si no hay una pieza amiga vecina; si la hay, el tablero queda igual.
+        PRE: tablero_bien_formado(t) == True and posicion_en_tablero(postrampa) == True
+        Args:
+            t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
+            postrampa (Posicion): Una tupla de enteros que indica coordenadas en el tablero y postrampa pertenece a POSICIONES_TRAMPA
+        Returns:
+            Si hay_pieza_amiga_vecina(t, postrampa), devuelve un tablero igual a *t*.
+            Si no, devuelve un tablero con la casilla de *postrampa* VACIA.
+    """
+    res : Tablero = []
+    for i in range(len(t)):
+        fila = []
+        for j in range(len(t[i])):
+            if i == postrampa.fila and j == postrampa.columna:
+                fila.append(VACIA)
+            else:
+                fila.append(t[i][j])
+        res.append(fila)
+    return res
+
+def tablero_despues_de_activar_trampa(t: Tablero, postrampa: Posicion) -> Tablero: #Es funcion auxiliar
+    """
+        Dado un tablero *t* y una posición trampa *postrampa*, devuelve un Tablero (list[list[Casilla]]) con Casilla = VACIA si la posición de la casilla = posicion trampa 
+        PRE: tablero_bien_formado(t) == True and posicion_en_tablero(postrampa) == True
+        Args:
+            t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
+            postrampa (Posicion): Una tupla de enteros que indica coordenadas en el tablero y postrampa pertenece a POSICIONES_TRAMPA
+        Returns:
+            Si existen figuras en postrampa, entonces devuelve un tablero con las casillas que corresponden a postrampa VACIAS. 
+            Si no, devuelve el mismo tablero.
+    """
+    if hay_casilla_vacia(t, postrampa) or hay_pieza_amiga_vecina(t,postrampa):
+        res = t
+    else:
+        res = sacar_pieza_tablero(t,postrampa)
+    return res
+
+def tablero_despues_de_activar_todas_las_trampas(t: Tablero) -> Tablero: #Es funcion auxiliar
+    """
+    Dado un tablero *t*, devuelve el tablero resultante de activar, una tras otra, todas las trampas de POSICIONES_TRAMPA, en ese orden. Cada trampa se activa sobre el resultado de la anterior.
+    PRE: tablero_bien_formado(t) == True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+     Returns:
+        Un tablero con las trampas ya activadas. 
+    """
+    res : Tablero = t
+    for postrampa in POSICIONES_TRAMPA:
+       res = tablero_despues_de_activar_trampa(res,postrampa)
+    return res
+
+
 def activar_trampas(t : Tablero) -> Tablero:
-    raise Exception("No implementado")
+    """
+        Dado un tablero *t*, devuelve el tablero resultante de activar todas las trampas y el tablero es válido.
+        PRE: True
+        Args:
+            t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+        Returns:
+        Un tablero bien formado, igual a *t* salvo en las trampas de POSICIONES_TRAMPA donde no había pieza amiga vecina, que quedan VACIAS.
+    """
+
+    res = tablero_despues_de_activar_todas_las_trampas(t)
+    return res
 
 #### Ejercicio 6
 
