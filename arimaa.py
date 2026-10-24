@@ -413,7 +413,7 @@ def hay_pieza_enemiga_debil(t : Tablero, pos : Posicion, d : Direccion) -> bool:
     Returns:
         True si la pieza vecina es una enemiga más débil en la dirección d desde la posición pos, False si no.
     """
-    if casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).fuerza < casilla_en_posicion(t, pos).fuerza and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
+    if fuerza(casilla_en_posicion(t, posicion_vecina_hacia(pos, d))[0]) < fuerza(casilla_en_posicion(t, pos)[0]) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
         return True
     return False
 
@@ -454,7 +454,7 @@ def hay_pieza_enemiga_fuerte_hacia(t : Tablero, pos : Posicion, d : Direccion) -
     Returns:
         True si la pieza vecina es una enemiga más fuerte en la dirección d desde la posición pos, False si no.
     """
-    if casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).fuerza > casilla_en_posicion(t, pos).fuerza and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
+    if fuerza(casilla_en_posicion(t, posicion_vecina_hacia(pos, d))[0]) > fuerza(casilla_en_posicion(t, pos)[0]) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):        
         return True
     return False
 
