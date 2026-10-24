@@ -48,12 +48,13 @@ def compruebo_anchos(t: Tablero) -> bool:
     Returns:
         True si todas las filas de *t* tienen longitud ANCHO, False en caso contrario.
     """ 
+    res:bool=True
     for fila in t:
         if len(fila) != ANCHO:
-            return False
-    return True
+            res=False
+    return res
 
-def columnas(t:Tablero, indice_columna: int) -> list:
+def columnas(t:Tablero, indice_columna: int) -> list[Casilla]:
     """
     Devuelve una lista con los elementos de una columna específica del tablero.
 
@@ -66,7 +67,7 @@ def columnas(t:Tablero, indice_columna: int) -> list:
     Returns:
         Una lista con los elementos pertenecientes a la columna *indice_columna* del tablero *t*.
     """
-    columna: list = []
+    columna: list[Casilla] = []
     for indice_fila in range(len(t)):
         columna.append(t[indice_fila][indice_columna])
     return columna
@@ -83,12 +84,14 @@ def compruebo_altos(t: Tablero) -> bool:
     Returns:
         True si todas las columnas de *t* tienen la cantidad esperada de filas ALTO, False en caso contrario.
     """
+    res:bool=True
     if not compruebo_anchos(t):
-        return False
-    for indice_columnas in range(ANCHO):
-        if len(columnas(t,indice_columnas)) != ALTO:
-            return False
-    return True
+        res=False
+    else:
+        for indice_columnas in range(ANCHO):
+            if len(columnas(t,indice_columnas)) != ALTO:
+                res=False
+    return res
 
 def tablero_bien_formado(t : Tablero) -> bool:
     """
@@ -136,14 +139,15 @@ def accion_valida(acc:Accion) -> bool:
     Returns:
         True si acc es una acción válida, False en caso contrario.
     """
-    acciones_validas = [MOVER_A_SECAS,ARRASTRAR,EMPUJAR]
+    res:bool=False
+    acciones_validas:list[Accion] = [MOVER_A_SECAS,ARRASTRAR,EMPUJAR]
     for accion in acciones_validas:
         if  acc == accion:
-            return True
-    return False
+            res=True
+    return res
 
 
-def origen_valido(pos_origen:Posicion):
+def origen_valido(pos_origen:Posicion)->bool:
     """
     Indica si la posicion de origen dada es valida.
 
@@ -157,25 +161,7 @@ def origen_valido(pos_origen:Posicion):
     """
     return posicion_en_tablero(pos_origen)  
 
-
-def pertenece(lista:list, elem) -> bool:
-    """
-    Indica si elem pertenece a la lista.
-        
-    PRE: True
-    
-    Args:
-        lista (list): Lista a la que evaluar.
-        elem: elemento que queremos ver si esta en la lista
-    Returns:
-        True si el elemento esta en la lista, False en caso contrario.
-    """
-    for elemento in lista:
-        if elemento == elem:
-            return True  
-    return False
-
-def direcciones_validas(pasos:list[Direccion]):
+def direcciones_validas(pasos:list[Direccion])->bool:
     """
     Indica si todas los direcciones pertenecen al conjunto de direcciones válidas del juego.
     
@@ -187,11 +173,12 @@ def direcciones_validas(pasos:list[Direccion]):
     Returns:
         True si todas las direcciones son válidas, False en caso contrario.
     """
-    direcciones_validas = [NORTE,SUR,ESTE,OESTE]
+    res:bool=True
+    direcciones_validas:list[Direccion] = [NORTE,SUR,ESTE,OESTE]
     for paso in pasos:
-        if not pertenece(direcciones_validas,paso):
-            return False
-    return True
+        if paso not in direcciones_validas:
+            res=False
+    return res
 
 def validar_catidad_pasos(pasos: list[Direccion], acc: Accion) -> bool:
     """
@@ -208,16 +195,10 @@ def validar_catidad_pasos(pasos: list[Direccion], acc: Accion) -> bool:
         True si la longitud de la lista de pasos es válida para la acción dada, 
         False en caso contrario.
     """   
-    cant_pasos = len(pasos)
-    pasos_MOVER_A_SECAS = 1
-    pasos_ARRASTRAR_o_EMPUJAR = 2
-    
-    if acc == MOVER_A_SECAS and cant_pasos == pasos_MOVER_A_SECAS:
-        return True
-    elif (acc == ARRASTRAR or acc == EMPUJAR) and cant_pasos == pasos_ARRASTRAR_o_EMPUJAR:
-        return True
-    else: 
-        return False
+    cant_pasos:int = len(pasos)
+    pasos_MOVER_A_SECAS:int = 1
+    pasos_ARRASTRAR_o_EMPUJAR:int = 2
+    return ((acc == MOVER_A_SECAS and cant_pasos == pasos_MOVER_A_SECAS) or ((acc == ARRASTRAR or acc == EMPUJAR) and cant_pasos == pasos_ARRASTRAR_o_EMPUJAR))
 
 
 def movimiento_bien_formado(m : Movimiento) -> bool:
@@ -233,17 +214,8 @@ def movimiento_bien_formado(m : Movimiento) -> bool:
     Returns:
         True si el movimiento es válido y está bien formado, False en caso contrario.
     """    
-    
-    if not accion_valida(m.accion):
-        return False
-    if not origen_valido(m.origen):
-        return False
-    if not validar_catidad_pasos(m.pasos, m.accion):
-        return False
-    if not direcciones_validas(m.pasos):
-        return False
-    
-    return True    
+
+    return (accion_valida(m.accion) and origen_valido(m.origen) and validar_catidad_pasos(m.pasos, m.accion) and direcciones_validas(m.pasos))
 
 
 #juego_bien_formado
@@ -254,20 +226,12 @@ def juego_bien_formado(j : Juego) -> bool:
     PRE: True
 
     Args:
-        j (Juego): El estado de juego a evaluar.
+        j (Juego): El juego a evaluar.
 
     Returns:
         True si el juego está bien formado, False en caso contrario.
     """    
-    colores_validos = [DORADO,PLATEADO]
-    if not tablero_bien_formado(j.tablero):
-        return False
-    if not (0 <= j.pasos_consumidos < MAX_PASOS):
-        return False
-    if j.turno not in colores_validos:
-        return False
-    
-    return True
+    return (tablero_bien_formado(j.tablero) and (0 <= j.pasos_consumidos < MAX_PASOS))#lo de colores no esta en la especificacion a proposito?
 
 #### Ejercicio 2
 
@@ -281,62 +245,56 @@ def posicion_vecina_hacia(pos : Posicion, d : Direccion) -> Posicion:
     Returns:
         Posicion (Posicion): Una tupla de enteros al NORTE, SUR, ESTE, OESTE de pos dependiendo d
     """
-
+    res: Posicion
     if d == NORTE:
         res = Posicion(pos.fila + 1, pos.columna)
-    if d == SUR:
-        res = Posicion(pos.fila -1, pos.columna)
-    if d == ESTE:
+    elif d == SUR:
+        res = Posicion(pos.fila - 1, pos.columna)
+    elif d == ESTE:
         res = Posicion(pos.fila, pos.columna + 1)
-    if d == OESTE:
+    else:
         res = Posicion(pos.fila, pos.columna - 1)
     return res
 
-def casilla_en_posicion(t : Tablero, p : Posicion) -> Casilla:
+def casilla_en_posicion(t : Tablero, pos : Posicion) -> Casilla:
     """
-    Dado un tablero *t* y una posición *p*, devuelve la Casilla (VACIA O FIGURA) ubicada en esa posicion *p* de tablero *t*
-    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(p) == True
+    Dado un tablero *t* y una posición *pos*, devuelve la Casilla (VACIA O FIGURA) ubicada en esa posicion *p* de tablero *t*
+    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(pos) == True
     Args:
         t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
-        p (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+        pos (Posicion): Una tupla de enteros que indica coordenadas en el tablero
     Returns:
-        Casilla (VACIA O FIGURA): Devuelve la casilla (VACIA O FIGURA) correspondiente a esa posicion *p* en el tablero *t*
+        Casilla (VACIA O FIGURA): Devuelve la casilla (VACIA O FIGURA) correspondiente a esa posicion *pos* en el tablero *t*
     """
-    res = t[p.fila][p.columna]
+    res:Casilla = t[pos.fila][pos.columna]
     return res
 
 def hay_casilla_vacia(t : Tablero, pos : Posicion) -> bool:
     """
-    Dado un tablero *t* y una posición *p*, devuelve la True si el valor de la Casilla (VACIA O FIGURA) en esa posicion *p* es VACIA
-    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(p) == True
+    Dado un tablero *t* y una posición *pos*, devuelve la True si el valor de la Casilla (VACIA O FIGURA) en esa posicion *pos* es VACIA
+    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(pos) == True
     Args:
         t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
-        p (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+        pos (Posicion): Una tupla de enteros que indica coordenadas en el tablero
     Returns:
         True si Casilla (VACIA O FIGURA) es VACIA
     """
-    res : bool = False
     casilla : Casilla = casilla_en_posicion(t, pos)
-    if casilla == VACIA:
-        res = True
-    return res
+    return casilla == VACIA
 
 def hay_pieza_de_color(t : Tablero, pos : Posicion, col : Color) -> bool:
     """
-    Dado un tablero *t* y una posición *p*, y un color *col*, devuelve True si el color de la FIGURA en la CASILLA correspondiente a POSICION es igual a col. 
-    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(p) == True
+    Dado un tablero *t* y una posición *pos*, y un color *col*, devuelve True si el color de la FIGURA en la CASILLA correspondiente a POSICION es igual a col. 
+    PRE: tablero_bien_formado(t) == True and posicion_en_tablero(pos) == True
     Args:
         t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
-        p (Posicion): Una tupla de enteros que indica coordenadas en el tablero
+        pos (Posicion): Una tupla de enteros que indica coordenadas en el tablero
         col (Color): La posicion 1 en la tupla FIGURA. str que representa el color de las piezas (Plateado o Dorado)
     Returns:
-        True si el color (Color) de la Pieza (Figura, Color) en la posicion *p* de tablero *t* es igual a al color ingresado *col*
+        True si el color (Color) de la Pieza (Figura, Color) en la posicion *pos* de tablero *t* es igual a al color ingresado *col*
     """
-    res : bool = False
     casilla : Casilla = casilla_en_posicion(t, pos)
-    if not hay_casilla_vacia(t, pos) and casilla.color == col:
-        res = True
-    return res
+    return (not hay_casilla_vacia(t, pos) and casilla.color == col)
 
 #### Ejercicio 3
 
@@ -347,15 +305,14 @@ def hay_casilla_vacia_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
     PRE: tableroBienFormado (t) ∧ posicionEnTablero (pos)
     
     Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
         pos (Posicion): La posición desde donde se busca.
         d (Direccion): La dirección en la que se busca.
         
     Returns:
         True si hay una casilla vacía en la dirección d desde la posición pos, False si no.
     """
-    if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) == VACIA:
-        return True
-    return False
+    return (posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) == VACIA)
 
 def hay_pieza_amiga_vecina(t : Tablero, pos : Posicion) -> bool:
     """
@@ -371,10 +328,11 @@ def hay_pieza_amiga_vecina(t : Tablero, pos : Posicion) -> bool:
     Returns:
         True si hay una pieza amiga vecina a la posición pos, False si no.
     """
+    res:bool=False
     for d in [NORTE, SUR, ESTE, OESTE]:
         if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and hay_pieza_de_color(t, posicion_vecina_hacia(pos, d), casilla_en_posicion(t, pos).color):
-            return True
-    return False
+            res=True
+    return res
 
 
 def hay_pieza_enemiga_mas_debil_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
@@ -392,9 +350,7 @@ def hay_pieza_enemiga_mas_debil_hacia(t : Tablero, pos : Posicion, d : Direccion
     Returns:
         True si hay una pieza enemiga más débil en la dirección d desde la posición pos, False si no.
     """
-    if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) != VACIA and hay_pieza_enemiga_debil(t, pos, d):
-        return True
-    return False
+    return (posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) != VACIA and hay_pieza_enemiga_debil(t, pos, d))
 
 def hay_pieza_enemiga_debil(t : Tablero, pos : Posicion, d : Direccion) -> bool:
     """
@@ -409,13 +365,12 @@ def hay_pieza_enemiga_debil(t : Tablero, pos : Posicion, d : Direccion) -> bool:
         t (Tablero): El tablero en el que se busca.
         pos (Posicion): La posición desde donde se busca.
         d (Direccion): La dirección en la que se busca.
-        
     Returns:
         True si la pieza vecina es una enemiga más débil en la dirección d desde la posición pos, False si no.
     """
-    if fuerza(casilla_en_posicion(t, posicion_vecina_hacia(pos, d))[0]) < fuerza(casilla_en_posicion(t, pos)[0]) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):
-        return True
-    return False
+
+    return fuerza(casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).figura) < fuerza(casilla_en_posicion(t, pos).figura) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color)
+
 
 def hay_pieza_enemiga_mas_fuerte_vecina(t : Tablero, pos : Posicion) -> bool:
     """
@@ -432,10 +387,11 @@ def hay_pieza_enemiga_mas_fuerte_vecina(t : Tablero, pos : Posicion) -> bool:
     Returns:
         True si hay una pieza enemiga más fuerte vecina a la posición pos, False si no.
     """
+    res:bool=False
     for d in [NORTE, SUR, ESTE, OESTE]:
         if posicion_en_tablero(posicion_vecina_hacia(pos, d)) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)) != VACIA and hay_pieza_enemiga_fuerte_hacia(t, pos, d):
-            return True
-    return False
+            res=True
+    return res
 
 def hay_pieza_enemiga_fuerte_hacia(t : Tablero, pos : Posicion, d : Direccion) -> bool:
     """
@@ -454,10 +410,7 @@ def hay_pieza_enemiga_fuerte_hacia(t : Tablero, pos : Posicion, d : Direccion) -
     Returns:
         True si la pieza vecina es una enemiga más fuerte en la dirección d desde la posición pos, False si no.
     """
-    if fuerza(casilla_en_posicion(t, posicion_vecina_hacia(pos, d))[0]) > fuerza(casilla_en_posicion(t, pos)[0]) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color):        
-        return True
-    return False
-
+    return (fuerza(casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).figura) > fuerza(casilla_en_posicion(t, pos).figura) and casilla_en_posicion(t, posicion_vecina_hacia(pos, d)).color == oponente(casilla_en_posicion(t, pos).color))
 def hay_pieza_congelada(t : Tablero, pos : Posicion) -> bool:
     """
     Indica si hay una pieza congelada en la posición pos.
@@ -471,26 +424,9 @@ def hay_pieza_congelada(t : Tablero, pos : Posicion) -> bool:
     Returns:
         True si hay una pieza congelada en la posición pos, False si no.
     """
-    if hay_pieza_de_color(t, pos, casilla_en_posicion(t, pos).color) and hay_pieza_enemiga_mas_fuerte_vecina(t, pos) and not hay_pieza_amiga_vecina(t, pos):
-        return True
-    return False
+    return not hay_casilla_vacia(t,pos) and hay_pieza_enemiga_mas_fuerte_vecina(t, pos) and not hay_pieza_amiga_vecina(t, pos)
 
 #### Ejercicio 4
-#j es de in, y m tambien, se supone que el juego y el movimiento estan bien formados, se asegura que se puede realizar el movimiento, es decir,
-# #haypieza de color (j.tablero,m.origen,j.turno), nohaypiezacongelada(j.tablero,m.origen),direcci ó nDeMovimientoHabilitada (j . tablero , m. origen , m. pasos [0])
-# ∧ j . pasosConsumidos + |m. pasos | ≤ Max_pasos
-# ∧ puedeRealizarAcci ó n (j . tablero , m)
-#Movimiento = Acción × Posición × seq ⟨ Dirección ⟩
-#Acción = Mover_a_secas | Arrastrar | Empujar
-#Posición = Z × Z
-# Dirección = Norte | Sur | Este | Oeste
-
-#juego=Juego = Tablero × Color × Z
-#Tablero = seq ⟨ seq ⟨ Casilla ⟩ ⟩
-#Casilla = Vacía | Pieza
-#Pieza = Figura × Color
-#Figura = Elefante | Camello | Caballo | Perro | Gato | Conejo
-#Color = Dorado | Plateado
 def direccionDeMovimientoHabilitada(t : Tablero , pos : Posicion , d : Direccion )->bool:#es uno de los predicados
     """
     Indica si la direccion para el movimiento habilitada
@@ -534,6 +470,7 @@ def puedeArrastrar(t:Tablero,pos:Posicion,d:Direccion,d_arrastre:Direccion)->boo
     t (Tablero): El tablero actual
     pos (Posicion): Posicion de la que parto
     d (Direccion): Direccion a la que me desplazo
+    d_arrastre (Direccion): Direccion a la que arrastro
     Returns:
     True si es posible arrastrar, False sino
     """
@@ -548,6 +485,7 @@ def puedeEmpujar(t:Tablero,pos:Posicion,d:Direccion,d_empuje:Direccion)->bool:#e
     t (Tablero): El tablero actual
     pos (Posicion): Posicion de la que parto
     d (Direccion): Direccion a la que me desplazo
+    d_empuje (Direccion): Direccion a la que empujo
     Returns:
     True si es posible empujar, False sino
     """
@@ -566,14 +504,7 @@ def puedeRealizarAccion(t : Tablero , m : Movimiento )->bool:#es uno de los pred
     Returns:
     True si es posible realizar movimiento, False sino
     """
-    res:bool=False
-    if (m.accion==MOVER_A_SECAS and puedeMoverASecas(t, m.origen , m.pasos[0])):
-        res=True
-    elif(m.accion==ARRASTRAR and puedeArrastrar(t, m.origen , m.pasos[0] , m.pasos[1])):
-        res=True
-    elif(m.accion==EMPUJAR and puedeEmpujar(t, m.origen , m.pasos[0] , m.pasos[1])):
-        res=True
-    return res
+    return (m.accion==MOVER_A_SECAS and puedeMoverASecas(t, m.origen , m.pasos[0])) or (m.accion==ARRASTRAR and puedeArrastrar(t, m.origen , m.pasos[0] , m.pasos[1])) or (m.accion==EMPUJAR and puedeEmpujar(t, m.origen , m.pasos[0] , m.pasos[1]))
 
 
 def puede_realizar_movimiento(j : Juego, m : Movimiento) -> bool:#es consigna
@@ -582,21 +513,18 @@ def puede_realizar_movimiento(j : Juego, m : Movimiento) -> bool:#es consigna
     PRE: juegoBienFormado (j ) ∧ movimientoBienFormado (m)
     Args:
     j (Juego): estado actual del juego
-    m (Movimiento): Direccion a la que me desplazo
+    m (Movimiento): el movimiento a realizar
     Returns:
-    True si es el movimiento es posiblo, False sino
+    True si es el movimiento es posible, False sino
     """
-    res:bool=False
-    if(hay_pieza_de_color(j.tablero,m.origen,j.turno) and (not (hay_pieza_congelada(j.tablero,m.origen))) and (direccionDeMovimientoHabilitada(j.tablero,m.origen,m.pasos[0])) and  (j.pasos_consumidos + len(m.pasos)<=MAX_PASOS) and (puedeRealizarAccion(j.tablero,m))):
-        res=True
-    return(res)
+    return(hay_pieza_de_color(j.tablero,m.origen,j.turno) and (not (hay_pieza_congelada(j.tablero,m.origen))) and (direccionDeMovimientoHabilitada(j.tablero,m.origen,m.pasos[0])) and  (j.pasos_consumidos + len(m.pasos)<=MAX_PASOS) and (puedeRealizarAccion(j.tablero,m)))
 #para este punto supuse el correcto funcionamiento de hay_pieza_de_color,hay_pieza_congelada,casilla_en_posicion,posicion_vecina_hacia,hay_pieza_enemiga_mas_debil_hacia,hay_casilla_vacia_hacia
 
 #### Ejercicio 5
 
 def sacar_pieza_tablero(t: Tablero, postrampa: Posicion) -> Tablero: #Es funcion auxiliar
     """
-        Dado un tablero *t* y una posición trampa *postrampa*, devuelve el tablero resultante de activar esa trampa: la casilla queda VACIA si no hay una pieza amiga vecina; si la hay, el tablero queda igual.
+        Dado un tablero *t* y una posición trampa *postrampa*, devuelve el tablero resultante de sacar la pieza en postrampa, esa casilla queda vacia
         PRE: tablero_bien_formado(t) == True and posicion_en_tablero(postrampa) == True
         Args:
             t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
@@ -607,7 +535,7 @@ def sacar_pieza_tablero(t: Tablero, postrampa: Posicion) -> Tablero: #Es funcion
     """
     res : Tablero = []
     for i in range(len(t)):
-        fila = []
+        fila: list[Casilla] = []
         for j in range(len(t[i])):
             if i == postrampa.fila and j == postrampa.columna:
                 fila.append(VACIA)
@@ -624,12 +552,11 @@ def tablero_despues_de_activar_trampa(t: Tablero, postrampa: Posicion) -> Tabler
             t (Tablero): Una secuencia de secuencias de Casillas (VACIA O FIGURA)
             postrampa (Posicion): Una tupla de enteros que indica coordenadas en el tablero y postrampa pertenece a POSICIONES_TRAMPA
         Returns:
-            Si existen figuras en postrampa, entonces devuelve un tablero con las casillas que corresponden a postrampa VACIAS. 
+            Si existen figuras en postrampa y estas no tienen piezas amigas vecinas, entonces devuelve un tablero con las casillas que corresponden a postrampa VACIAS. 
             Si no, devuelve el mismo tablero.
     """
-    if hay_casilla_vacia(t, postrampa) or hay_pieza_amiga_vecina(t,postrampa):
-        res = t
-    else:
+    res:Tablero=t
+    if not hay_casilla_vacia(t, postrampa) and not hay_pieza_amiga_vecina(t,postrampa):
         res = sacar_pieza_tablero(t,postrampa)
     return res
 
@@ -658,7 +585,7 @@ def activar_trampas(t : Tablero) -> Tablero:
         Un tablero bien formado, igual a *t* salvo en las trampas de POSICIONES_TRAMPA donde no había pieza amiga vecina, que quedan VACIAS.
     """
 
-    res = tablero_despues_de_activar_todas_las_trampas(t)
+    res:Tablero = tablero_despues_de_activar_todas_las_trampas(copiar_tablero(t))
     return res
 
 #### Ejercicio 6
@@ -684,16 +611,52 @@ def activar_trampas(t : Tablero) -> Tablero:
 # tableroPostEmpujar (t0 , t1 , m. origen , m. pasos [0] , m. pasos [1]))
 
 def tableroPostMovimiento(t:Tablero,m:Movimiento)->Tablero:
+    """
+    Dado un tablero *t*, devuelve el tablero resultante del movimiento
+    PRE: True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+        m (Movimiento): El movimiento que sera efectuado en el tablero
+     Returns:
+        Un tablero habiendo hecho el movimiento m. 
+    """
     res:Tablero=[]
     if(m.accion==MOVER_A_SECAS):
         res=tableroPostMoverASecas(t,m)
     elif(m.accion==EMPUJAR):
         res=tableroPostEmpujar(t,m)
-    elif(m.accion==ARRASTRAR):
+    else:
         res=tableroPostArrastrar(t,m)
     return res
 
+def tableroTrasladandoPieza(t:Tablero,p_inicial:Posicion,p_objetivo:Posicion)->Tablero:
+    """
+    Dado un tablero *t*, y 2 posiciones *p_inicial* y *p_objetivo* devuelve un tablero habiendo trasladado el contenido de p_inicial hacia p_objetivo
+    PRE: True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+        p_inicial (Posicion): Posicion a desplazar
+        p_objetivo (Posicion): Objetivo del movimiento
+     Returns:
+        Un tablero habiendo hecho el traslado de piezas. 
+    """
+    res: Tablero = copiar_tablero(t)
+    res[p_objetivo.fila][p_objetivo.columna] = t[p_inicial.fila][p_inicial.columna]
+    res[p_inicial.fila][p_inicial.columna] = VACIA
+    return res
+
+
+
 def tableroPostMoverASecas(t:Tablero,m:Movimiento)->Tablero:
+    """
+    Dado un tablero *t*, y movimiento *m* devuelve un tablro habiendo realizado la accion MOVER_A_SECAS dado por movimiento
+    PRE: True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+        m (Movimiento): El movimiento que sera efectuado en el tablero
+     Returns:
+        Un tablero habiendo hecho el movimiento m con la accion MOVER_A_SECAS. 
+    """
     res:Tablero=[]
     pos:Posicion=m.origen
     pos_destino:Posicion=posicion_vecina_hacia(pos,m.pasos[0])
@@ -703,6 +666,15 @@ def tableroPostMoverASecas(t:Tablero,m:Movimiento)->Tablero:
 
 
 def tableroPostEmpujar(t:Tablero,m:Movimiento)->Tablero:
+    """
+    Dado un tablero *t*, y movimiento *m* devuelve un tablro habiendo realizado la accion EMPUJAR dado por movimiento
+    PRE: True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+        m (Movimiento): El movimiento que sera efectuado en el tablero
+     Returns:
+        Un tablero habiendo hecho el movimiento m con la accion EMPUJAR. 
+    """
     res:Tablero=copiar_tablero(t)
     pos_enemiga:Posicion = posicion_vecina_hacia(m.origen, m.pasos[0])
     pos_objetivo:Posicion = posicion_vecina_hacia(pos_enemiga, m.pasos[1])
@@ -713,6 +685,15 @@ def tableroPostEmpujar(t:Tablero,m:Movimiento)->Tablero:
 
 
 def tableroPostArrastrar(t:Tablero,m:Movimiento)->Tablero:
+    """
+    Dado un tablero *t*, y movimiento *m* devuelve un tablro habiendo realizado la accion ARRASTRAR dado por movimiento
+    PRE: True
+    Args:
+        t (Tablero): Una secuencia de secuencias de Casillas (VACIA o Pieza)
+        m (Movimiento): El movimiento que sera efectuado en el tablero
+     Returns:
+        Un tablero habiendo hecho el movimiento m con la accion ARRASTRAR. 
+    """
     res:Tablero=copiar_tablero(t)
     pos_enemiga:Posicion=posicion_vecina_hacia(m.origen,opuesta(m.pasos[1]))
     pos_objetivo:Posicion=posicion_vecina_hacia(m.origen,m.pasos[0])
@@ -722,6 +703,15 @@ def tableroPostArrastrar(t:Tablero,m:Movimiento)->Tablero:
     return res
 
 def hayQueCambiarDeTurno(j:Juego,m:Movimiento)->bool:
+    """
+    Dado un juego *j*, y movimiento *m* devuelve un resultado booleano según si hay que cambiar de turno o no
+    PRE: True
+    Args:
+        j (Juego): estado actual del juego
+        m (Movimiento): El movimiento que sera efectuado en el turno
+     Returns:
+        True si hay que cambiar de turno, False sino. 
+    """
     return((j.pasos_consumidos + len(m.pasos))==MAX_PASOS)
 #definir los 3 tableros posmovimientos, hay que tener cuidado de no modificar t ni m
 # ahora bien, res debe ser un juegobienformado, y j
@@ -729,6 +719,15 @@ def hayQueCambiarDeTurno(j:Juego,m:Movimiento)->bool:
 #Estoy asumiendo el correcto funcionamiento de:
 #juego_bien_formado. posicion_vecina_hacia,tableroTrasladandoPieza(t)->t,esTableroDespuesDeActivarTodasLasTrampas
 def realizar_movimiento(j : Juego, m : Movimiento) -> Juego:
+    """
+    Dado un juego *j*, y movimiento *m* devuelve un juego habiendo modificado el tablero segun movimiento, y cambiado de TURNO de ser necesario
+    PRE: juegoBienFormado (j ) ∧ movimientoBienFormado (m) ∧ puedeRealizarMovimiento (j , m)
+    Args:
+        j (Juego): estado actual del juego
+        m (Movimiento): El movimiento que sera efectuado en el turno
+     Returns:
+        Devuelve un Juego habiendo modificado el tablero segun indica movimiento y cambiando de turno. 
+    """
     t:Tablero=copiar_tablero(j.tablero)
     t=tableroPostMovimiento(t,m)
     cambio_de_turno:Color=j.turno
