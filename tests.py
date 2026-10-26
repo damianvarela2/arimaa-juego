@@ -301,11 +301,12 @@ class test_hay_pieza_congelada(unittest.TestCase):
         self.assertTrue(hay_pieza_congelada(t, Posicion(6, 1)))
 
 #### Ejercicio 4
-
+#hay que probar, que no haya pieza de color, que haya pieza congelada, que la direccion de movimiento no este habilitada, que los pasos esten todos consumidos y esto para cada accion
+#que se pueda hacer todo para cada accion
 class test_puede_realizar_movimiento(unittest.TestCase):
 
     def test_mover_a_secas_ok(self):
-        t = leer_tablero([
+        t:Tablero = leer_tablero([
               '--eMr---', #7
               '--------', #6
               '-R----r-', #5
@@ -316,9 +317,320 @@ class test_puede_realizar_movimiento(unittest.TestCase):
               '-mD--mDR', #0
               #01234567
             ])
-        j = Juego(t, PLATEADO, 0)
-        m = Movimiento(MOVER_A_SECAS, Posicion(0, 1), [NORTE])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(0, 1), [NORTE])
         self.assertTrue(puede_realizar_movimiento(j, m))
+    def test_empujar_ok(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(EMPUJAR, Posicion(0, 1), [ESTE,NORTE])
+        self.assertTrue(puede_realizar_movimiento(j, m))
+
+    def test_arrastrar_ok(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(ARRASTRAR, Posicion(0, 1), [NORTE,OESTE])
+        self.assertTrue(puede_realizar_movimiento(j, m))
+    def test_no_hay_pieza_de_color_arrastrar(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(ARRASTRAR, Posicion(0, 0), [NORTE,ESTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_no_hay_pieza_de_color_mover_a_secas(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(0, 0), [NORTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_no_hay_pieza_de_color_empujar(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(EMPUJAR, Posicion(0, 0), [NORTE,ESTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+    def test_mover_enemigo_arrastrar(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(ARRASTRAR, Posicion(0, 2), [NORTE,ESTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_mover_enemigo_mover_a_secas(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(0, 6), [NORTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_mover_enemigo_empujar(self):
+        t:Tablero = leer_tablero([
+              '--eMr---', #7
+              '--------', #6
+              '-R----r-', #5
+              '--------', #4
+              '--mMd---', #3
+              '---D----', #2
+              '--------', #1
+              '-mD--mDR', #0
+              #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(EMPUJAR, Posicion(3, 3), [NORTE,ESTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_mover_pieza_congelada_mover_a_secas(self):
+        t:Tablero = leer_tablero([
+                    '--eMr---', #7
+                    '--------', #6
+                    '-R----r-', #5
+                    '--------', #4
+                    '--mMd---', #3
+                    '---D----', #2
+                    '--------', #1
+                    '-mD--mDR', #0
+                    #01234567
+                ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(7, 4), [SUR])
+        self.assertFalse(puede_realizar_movimiento(j,m))
+
+    def test_direccion_invalida_mover_a_secas(self):
+        t:Tablero = leer_tablero([
+                    '--eMr---', #7
+                    '--------', #6
+                    '-R----r-', #5
+                    '--------', #4
+                    '--mMd---', #3
+                    '---D----', #2
+                    '--------', #1
+                    '-mD--mDR', #0
+                    #01234567
+                ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(5, 6), [NORTE])
+        self.assertFalse(puede_realizar_movimiento(j,m))
+    def test_direccion_invalida_mover_a_secas2(self):
+        t:Tablero = leer_tablero([
+                    '--eMr---', #7
+                    '--------', #6
+                    '-R----r-', #5
+                    '--------', #4
+                    '--mMd---', #3
+                    '---D----', #2
+                    '--------', #1
+                    '-mD--mDR', #0
+                    #01234567
+                ])
+        j:Juego = Juego(t, DORADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(5, 1), [SUR])
+        self.assertFalse(puede_realizar_movimiento(j,m))
+
+    
+                         
+    def test_mover_pieza_congelada_arrastrar(self):
+        t:Tablero = leer_tablero([
+            '--eDhM--', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMd---', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--mDR', #0
+            #01234567
+                    ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(ARRASTRAR, Posicion(7, 4), [SUR,ESTE])
+        self.assertFalse(puede_realizar_movimiento(j,m))
+
+
+
+    def test_pasos_consumidos_arrastrar(self):
+        t:Tablero = leer_tablero([
+            '--eMr---', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMd---', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--mDR', #0
+            #01234567
+        ])
+        j: Juego = Juego(t, PLATEADO, 3)
+        m: Movimiento = Movimiento(ARRASTRAR, Posicion(7, 2), [SUR,OESTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+        
+
+    def test_mover_pieza_congelada_empujar(self):
+        t:Tablero = leer_tablero([
+            '--eMr---', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMdR--', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--mDR', #0
+            #01234567
+                    ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(EMPUJAR, Posicion(3, 4), [ESTE,NORTE])
+        self.assertFalse(puede_realizar_movimiento(j,m))
+
+
+    def test_pasos_consumidos_empujar(self):
+        t:Tablero = leer_tablero([
+            '--eMr---', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMd---', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--mDR', #0
+            #01234567
+        ])
+        j: Juego = Juego(t, PLATEADO, 3)
+        m: Movimiento = Movimiento(EMPUJAR, Posicion(7, 2), [ESTE,SUR])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_destino_ocupado_movera_a_secas(self):
+        t:Tablero = leer_tablero([
+                    '--eMr---', #7
+                    '--------', #6
+                    '-R----r-', #5
+                    '--------', #4
+                    '--mMd---', #3
+                    '---D----', #2
+                    '--------', #1
+                    '-mD--mDR', #0
+                    #01234567
+                ])
+        j:Juego = Juego(t, DORADO, 0)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(3, 3), [SUR])
+        self.assertFalse(puede_realizar_movimiento(j,m))
+
+    def test_empujar_contra_borde(self):
+        t:Tablero = leer_tablero([
+            '--eMr---', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMd---', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--mDc', #0
+            #01234567
+        ])
+        j:Juego = Juego(t, PLATEADO, 0)
+        m:Movimiento = Movimiento(EMPUJAR, Posicion(0, 1), [ESTE, SUR])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+
+    def test_arrastrar_fuera_borde(self):
+        t:Tablero = leer_tablero([
+            '--cMr---', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMd---', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--eDc', #0
+            #01234567
+        ])
+        j: Juego = Juego(t, PLATEADO, 0)
+        m: Movimiento = Movimiento(ARRASTRAR, Posicion(0, 1), [NORTE,NORTE])
+        self.assertFalse(puede_realizar_movimiento(j, m))
+    def test_igual_fuerza(self):
+        t:Tablero = leer_tablero([
+            '--cMr---', #7
+            '--------', #6
+            '-R----r-', #5
+            '--------', #4
+            '--mMm---', #3
+            '---D----', #2
+            '--------', #1
+            '-mD--eDc', #0
+            #01234567
+        ])
+        j: Juego = Juego(t, PLATEADO, 0)
+        m1: Movimiento = Movimiento(ARRASTRAR, Posicion(3, 4), [NORTE,ESTE])
+        m2: Movimiento = Movimiento(EMPUJAR, Posicion(3, 4), [OESTE,NORTE])
+        self.assertFalse(puede_realizar_movimiento(j, m1))
+        self.assertFalse(puede_realizar_movimiento(j, m2))
+
+
+
+
 
 #### Ejercicio 5
 
@@ -356,7 +668,7 @@ class test_activar_trampas(unittest.TestCase):
 class test_realizar_movimiento(unittest.TestCase):
  
     def test_mover_a_secas(self):
-        t0 = leer_tablero([
+        t0:Tablero = leer_tablero([
                'rrrrrrrr', #7
                'ccddhh-e', #6
                '--------', #5
@@ -367,7 +679,7 @@ class test_realizar_movimiento(unittest.TestCase):
                'RRRRRRRR', #0
                #01234567
              ])
-        tN = leer_tablero([
+        tN:Tablero = leer_tablero([
                'rrrrrrrr', #7
                'ccddhh-e', #6
                '---m----', #5
@@ -378,11 +690,154 @@ class test_realizar_movimiento(unittest.TestCase):
                'RRRRRRRR', #0
                #01234567
              ])
-        j0 = Juego(t0, PLATEADO, 0) 
-        jN = Juego(tN, PLATEADO, 1) 
-        mN = Movimiento(MOVER_A_SECAS, Posicion(4, 3), [NORTE])
+        j0:Juego = Juego(t0, PLATEADO, 0) 
+        jN:Juego = Juego(tN, PLATEADO, 1) 
+        mN:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(4, 3), [NORTE])
         self.assertTrue(puede_realizar_movimiento(j0, mN))
         self.assertEqual(realizar_movimiento(j0, mN), jN)
+    def test_empujar(self):
+        t0:Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '--------', #5
+               '---mR---', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        tN:Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '--------', #5
+               '----m---', #4
+               '----R---', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        j0:Juego = Juego(t0, PLATEADO, 0) 
+        jN:Juego = Juego(tN, PLATEADO, 2) 
+        mN:Movimiento = Movimiento(EMPUJAR, Posicion(4, 3), [ESTE,SUR])
+        self.assertTrue(puede_realizar_movimiento(j0, mN))
+        self.assertEqual(realizar_movimiento(j0, mN), jN)
+    def test_arrastrar(self):
+        t0:Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '--------', #5
+               '---mR---', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        tN:Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '--------', #5
+               '--mR----', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        j0:Juego = Juego(t0, PLATEADO, 0) 
+        jN:Juego = Juego(tN, PLATEADO, 2) 
+        mN:Movimiento = Movimiento(ARRASTRAR, Posicion(4, 3), [OESTE,OESTE])
+        self.assertTrue(puede_realizar_movimiento(j0, mN))
+        self.assertEqual(realizar_movimiento(j0, mN), jN)
+    def test_cambio_de_turno_al_consumir_max_pasos(self):
+        t0: Tablero = leer_tablero([
+                'rrrrrrrr', #7
+                'ccddhh-e', #6
+                '--------', #5
+                '---m----', #4
+                '--------', #3
+                '--------', #2
+                'EMHHDDCC', #1
+                'RRRRRRRR', #0
+                #01234567
+                ])
+        tN: Tablero = leer_tablero([
+                'rrrrrrrr', #7
+                'ccddhh-e', #6
+                '---m----', #5
+                '--------', #4
+                '--------', #3
+                '--------', #2
+                'EMHHDDCC', #1
+                'RRRRRRRR', #0
+                #01234567
+                ])
+        j0: Juego = Juego(t0, PLATEADO, 3) 
+        jN: Juego = Juego(tN, DORADO, 0)
+        m: Movimiento = Movimiento(MOVER_A_SECAS, Posicion(4, 3), [NORTE])
+        self.assertTrue(puede_realizar_movimiento(j0, m))
+        self.assertEqual(realizar_movimiento(j0, m), jN)
+    def test_mover_y_hay_trampa(self):
+        t0_trampa: Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '--m-----', #5
+               '--R-----', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        tN_trampa: Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '---m----', #5
+               '--------', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        j0:Juego = Juego(t0_trampa, PLATEADO, 2)
+        jN:Juego = Juego(tN_trampa, DORADO, 0)
+        m:Movimiento = Movimiento(ARRASTRAR, Posicion(5, 2), [ESTE, NORTE])
+        self.assertTrue(puede_realizar_movimiento(j0, m))
+        self.assertEqual(realizar_movimiento(j0, m), jN)
+
+
+    def test_mover_y_hay_trampa_con_amigo(self):
+        t0_trampa: Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '-C------', #5
+               '--R-----', #4
+               '--m-----', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        tN_trampa: Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'ccddhh-e', #6
+               '-CR-----', #5
+               '--m-----', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        j0:Juego = Juego(t0_trampa, PLATEADO, 2)
+        jN:Juego = Juego(tN_trampa, DORADO, 0)
+        m:Movimiento = Movimiento(EMPUJAR, Posicion(3, 2), [NORTE, NORTE])
+        self.assertTrue(puede_realizar_movimiento(j0, m))
+        self.assertEqual(realizar_movimiento(j0, m), jN)
+
 
 #### Ejercicio 7
 
