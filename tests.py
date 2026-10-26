@@ -43,24 +43,24 @@ def tablero_8x8_inicial_ejemplo():
 
 class test_tablero_bien_formado(unittest.TestCase):
 
-    def test_8x8_lleno(self):
+    def test_8x8(self):
         """Prueba que un tablero válido de 8x8 devuelva True."""
-        t = tablero_8x8_inicial_ejemplo()
+        t: Tablero = tablero_8x8_inicial_ejemplo()
         self.assertTrue(tablero_bien_formado(t))
 
     def test_filas_insuficientes(self):
         """Prueba que un tablero con menos de 8 filas devuelva False."""
-        t = [["VACÍA"] * 8 for _ in range(7)]
+        t: Tablero = [["VACÍA"] * 8 for _ in range(7)]
         self.assertFalse(tablero_bien_formado(t))
 
-    def test_filas_excesivas(self):
+    def test_mas_filas(self):
         """Prueba que un tablero con más de 8 filas devuelva False."""
-        t = [["VACÍA"] * 8 for _ in range(9)]
+        t: Tablero = [["VACÍA"] * 8 for _ in range(9)]
         self.assertFalse(tablero_bien_formado(t))
 
     def test_fila_corta(self):
         """Prueba un tablero con 8 filas pero con una fila de 3 columnas."""
-        t = [["VACÍA"] * 8 for _ in range(7)]
+        t: Tablero = [["VACÍA"] * 8 for _ in range(7)]
         t.append(["VACÍA", "VACÍA", "VACÍA"])
         self.assertFalse(tablero_bien_formado(t))
 
@@ -70,7 +70,7 @@ class test_tablero_bien_formado(unittest.TestCase):
 
 class test_posicion_en_tablero(unittest.TestCase):
 
-    def test_posicion_ok(self):
+    def test_posicion_valida(self):
         """Prueba una posición válida en el centro del tablero."""
         self.assertTrue(posicion_en_tablero(Posicion(5, 3)))
 
@@ -91,69 +91,63 @@ class test_posicion_en_tablero(unittest.TestCase):
 
 class test_movimiento_bien_formado(unittest.TestCase):
 
-    def test_movimiento_ok(self):
+    def test_movimiento_valido(self):
         """Prueba un movimiento totalmente válido (MOVER_A_SECAS con 1 paso)."""
-        m = Movimiento(MOVER_A_SECAS, Posicion(0, 1), [NORTE])
+        m: Movimiento = Movimiento(MOVER_A_SECAS, Posicion(0, 1), [NORTE])
         self.assertTrue(movimiento_bien_formado(m))
 
-    def test_movimiento_arrastrar_ok(self):
+    def test_movimiento_arrastrar_valido(self):
         """Prueba un movimiento de ARRASTRAR válido con exactamente 2 pasos."""
-        m = Movimiento(ARRASTRAR, Posicion(2, 2), [NORTE, ESTE])
+        m: Movimiento = Movimiento(ARRASTRAR, Posicion(2, 2), [NORTE, ESTE])
         self.assertTrue(movimiento_bien_formado(m))
 
     def test_accion_invalida(self):
         """Prueba una acción que no pertenece a las acciones válidas."""
-        m = Movimiento("VOLAR", Posicion(0, 1), [NORTE])
+        m: Movimiento = Movimiento("VOLAR", Posicion(0, 1), [NORTE])
         self.assertFalse(movimiento_bien_formado(m))
 
     def test_origen_invalido(self):
         """Prueba un movimiento cuyo origen está fuera del tablero."""
-        m = Movimiento(MOVER_A_SECAS, Posicion(-1, 0), [NORTE])
+        m: Movimiento = Movimiento(MOVER_A_SECAS, Posicion(-1, 0), [NORTE])
         self.assertFalse(movimiento_bien_formado(m))
 
     def test_cantidad_pasos_invalida_mover(self):
         """Prueba MOVER_A_SECAS con 2 pasos (debe ser exactamente 1 paso)."""
-        m = Movimiento(MOVER_A_SECAS, Posicion(0, 1), [NORTE, SUR])
+        m: Movimiento = Movimiento(MOVER_A_SECAS, Posicion(0, 1), [NORTE, SUR])
         self.assertFalse(movimiento_bien_formado(m))
 
     def test_cantidad_pasos_invalida_arrastrar(self):
         """Prueba ARRASTRAR con 1 solo paso (debe tener exactamente 2 pasos)."""
-        m = Movimiento(ARRASTRAR, Posicion(2, 2), [NORTE])
+        m: Movimiento = Movimiento(ARRASTRAR, Posicion(2, 2), [NORTE])
         self.assertFalse(movimiento_bien_formado(m))
 
     def test_direccion_invalida(self):
         """Prueba una dirección que no existe en el juego."""
-        m = Movimiento(MOVER_A_SECAS, Posicion(0, 1), ["ARRIBA"])
+        m: Movimiento = Movimiento(MOVER_A_SECAS, Posicion(0, 1), ["ARRIBA"])
         self.assertFalse(movimiento_bien_formado(m))
 
 class test_juego_bien_formado(unittest.TestCase):
 
-    def test_juego_ok(self):
+    def test_juego_valido(self):
         """Prueba un juego válido en posición inicial con 0 pasos consumidos."""
-        j = Juego(tablero_8x8_vacio(), DORADO, 0)
+        j: Juego = Juego(tablero_8x8_vacio(), DORADO, 0)
         self.assertTrue(juego_bien_formado(j))
 
     def test_juego_tablero_invalido(self):
         """Prueba un juego donde el tablero interno no está bien formado."""
-        tablero_malo = [["VACÍA"] * 8 for _ in range(5)]  # Solo 5 filas
-        j = Juego(tablero_malo, DORADO, 0)
+        tablero_invalido = [["VACÍA"] * 8 for _ in range(5)]  # Solo 5 filas
+        j: Juego = Juego(tablero_invalido, DORADO, 0)
         self.assertFalse(juego_bien_formado(j))
 
     def test_juego_pasos_consumidos_negativos(self):
         """Prueba un juego con pasos consumidos menores a 0."""
-        j = Juego(tablero_8x8_vacio(), DORADO, -1)
+        j: Juego = Juego(tablero_8x8_vacio(), DORADO, -1)
         self.assertFalse(juego_bien_formado(j))
 
     def test_juego_pasos_consumidos_excesivos(self):
         """Prueba un juego con pasos consumidos iguales o mayores a MAX_PASOS (4)."""
-        j = Juego(tablero_8x8_vacio(), DORADO, MAX_PASOS)
+        j: Juego = Juego(tablero_8x8_vacio(), DORADO, MAX_PASOS)
         self.assertFalse(juego_bien_formado(j))
-
-    # def test_juego_turno_invalido(self):
-    #     """Prueba un juego con un color de turno no permitido."""
-    #     j = Juego(tablero_8x8_vacio(), "AZUL", 0)
-    #     self.assertFalse(juego_bien_formado(j))
-    # este test no tiene sentido pues no existen otros colores, ya que por especificacion dice que se ingresa un color, los cuales solo pueden ser dorado o plateado
 
 #### Ejercicio 2
 
