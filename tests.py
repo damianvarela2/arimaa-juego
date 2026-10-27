@@ -256,7 +256,7 @@ class test_hay_casilla_vacia(unittest.TestCase):
               'R-R---RR', #0
               #01234567
             ])
-        self.assertTrue(hay_casilla_vacia(t, Posicion(0, 0)))
+        self.assertFalse(hay_casilla_vacia(t, Posicion(0, 0)))
 
 class test_hay_pieza_de_color(unittest.TestCase):
 
