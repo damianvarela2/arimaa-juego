@@ -177,28 +177,188 @@ class test_posicion_vecina_hacia(unittest.TestCase):
     def test_vecina_al_norte(self):
         self.assertEqual(posicion_vecina_hacia(Posicion(0, 0), NORTE), Posicion(1, 0))
 
+    def test_vecina_al_sur(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(1, 0), SUR), Posicion(0, 0))
+
+    def test_vecina_al_este(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(1, 1), ESTE), Posicion(1, 2))
+
+    def test_vecina_al_oeste(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(1, 1), OESTE), Posicion(1, 0))
+
+    def test_vecina_al_norte_borde(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(7, 7), NORTE), Posicion(8, 7))
+
+    def test_vecina_al_sur_borde(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(0, 0), SUR), Posicion(-1, 0))
+
+    def test_vecina_al_este_borde(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(7, 7), ESTE), Posicion(7, 8))
+
+    def test_vecina_al_oeste_borde(self):
+        self.assertEqual(posicion_vecina_hacia(Posicion(0, 0), OESTE), Posicion(0, -1))
+
+    def test_devuelve_una_posicion_valida(self):
+        res = posicion_vecina_hacia(Posicion(3, 3), NORTE)
+        self.assertEqual(res.fila, 4)
+        self.assertEqual(res.columna, 3)
+
+
 class test_son_posiciones_vecinas(unittest.TestCase):
 
-    def test_vecinas(self):
+    def test_vecinas_true(self):
         self.assertTrue(son_posiciones_vecinas(Posicion(0, 0), Posicion(1, 0)))
+
+    def test_vecinas_falso(self):
+        self.assertFalse(son_posiciones_vecinas(Posicion(0, 0), Posicion(7, 0)))
 
 class test_casilla_en_posicion(unittest.TestCase):
 
-    def test_casilla_en_posicion(self):
-        t = tablero_8x8_inicial_ejemplo()
+    def test_casilla_en_posicion_tablero_inicial(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
         self.assertEqual(casilla_en_posicion(t, Posicion(0, 0)), Pieza(CABALLO, DORADO))
+
+    def test_casilla_en_posicion_tablero_en_juego(self):
+        t:Tablero = leer_tablero([
+              '-r----rr', #7
+              '-mrh----', #6
+              '-r---r--', #5
+              'd-EH---c', #4
+              '-M--hD-d', #3
+              '-R-e----', #2
+              '---H-R-C', #1
+              'R-R---RR', #0
+              #01234567
+            ])
+        self.assertEqual(casilla_en_posicion(t, Posicion(0, 0)), Pieza(CONEJO, DORADO))
+
+    def test_casilla_en_posicion_tablero_en_juego_VACIA(self):
+        t:Tablero = leer_tablero([
+              '-r----rr', #7
+              '-mrh----', #6
+              '-r---r--', #5
+              'd-EH---c', #4
+              '-M--hD-d', #3
+              '-R-e----', #2
+              '---H-R-C', #1
+              'R-R---RR', #0
+              #01234567
+            ])
+        self.assertEqual(casilla_en_posicion(t, Posicion(1, 0)), VACIA)
 
 class test_hay_casilla_vacia(unittest.TestCase):
 
-    def test_casilla_vacia(self):
-        t = tablero_8x8_inicial_ejemplo()
+    def test_casilla_vacia_tablero_inicial_TRUE(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
         self.assertTrue(hay_casilla_vacia(t, Posicion(2, 1)))
+
+    def test_casilla_vacia_tablero_inicial_FALSE(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
+        self.assertFalse(hay_casilla_vacia(t, Posicion(0, 0)))
+
+    def test_casilla_vacia_tablero_en_juego_TRUE(self):
+        t:Tablero = leer_tablero([
+              '-r----rr', #7
+              '-mrh----', #6
+              '-r---r--', #5
+              'd-EH---c', #4
+              '-M--hD-d', #3
+              '-R-e----', #2
+              '---H-R-C', #1
+              'R-R---RR', #0
+              #01234567
+            ])
+        self.assertTrue(hay_casilla_vacia(t, Posicion(1, 0)))
+
+    def test_casilla_vacia_tablero_en_juego_FALSE(self):
+        t:Tablero = leer_tablero([
+              '-r----rr', #7
+              '-mrh----', #6
+              '-r---r--', #5
+              'd-EH---c', #4
+              '-M--hD-d', #3
+              '-R-e----', #2
+              '---H-R-C', #1
+              'R-R---RR', #0
+              #01234567
+            ])
+        self.assertFalse(hay_casilla_vacia(t, Posicion(0, 0)))
 
 class test_hay_pieza_de_color(unittest.TestCase):
 
-    def test_hay_pieza_de_color_ok(self):
-        t = tablero_8x8_inicial_ejemplo()
-        self.assertTrue(hay_pieza_de_color(t, Posicion(1, 4), DORADO))
+    def test_hay_pieza_de_color_FALSE_VACIA_inicial(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
+        self.assertFalse(hay_pieza_de_color(t, Posicion(3, 4), DORADO))
+
+    def test_hay_pieza_de_color_FALSE_OTRA_inicial(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
+        self.assertFalse(hay_pieza_de_color(t, Posicion(1, 6), PLATEADO))
+    
+    def test_hay_pieza_de_color_TRUE_DORADA_inicial(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
+        self.assertTrue(hay_pieza_de_color(t, Posicion(0, 0), DORADO))
+
+    def test_hay_pieza_de_color_TRUE_PLATEADA_inicial(self):
+        t:Tablero = tablero_8x8_inicial_ejemplo()
+        self.assertTrue(hay_pieza_de_color(t, Posicion(7, 7), PLATEADO))
+   
+   
+    def test_hay_pieza_de_color_TRUE_DORADO_EN_JUEGO(self):
+        t:Tablero = leer_tablero([
+                '-r----rr', #7
+                '-mrh----', #6
+                '-r---r--', #5
+                'd-EH---c', #4
+                '-M--hD-d', #3
+                '-R-e----', #2
+                '---H-R-C', #1
+                'R-R---RR', #0
+                 #01234567
+             ])
+        self.assertTrue(hay_pieza_de_color(t, Posicion(0, 0), DORADO))
+
+    def test_hay_pieza_de_color_TRUE_PLATEADO_EN_JUEGO(self):
+        t:Tablero = leer_tablero([
+                '-r----rr', #7
+                '-mrh----', #6
+                '-r---r--', #5
+                'd-EH---c', #4
+                '-M--hD-d', #3
+                '-R-e----', #2
+                '---H-R-C', #1
+                'R-R---RR', #0
+                 #01234567
+             ])
+        self.assertTrue(hay_pieza_de_color(t, Posicion(7, 7), PLATEADO))
+
+    def test_hay_pieza_de_color_FALSE_OTRO_COLOR_EN_JUEGO(self):
+        t:Tablero = leer_tablero([
+                '-r----rr', #7
+                '-mrh----', #6
+                '-r---r--', #5
+                'd-EH---c', #4
+                '-M--hD-d', #3
+                '-R-e----', #2
+                '---H-R-C', #1
+                'R-R---RR', #0
+                 #01234567
+             ])
+        self.assertFalse(hay_pieza_de_color(t, Posicion(7, 7), DORADO))
+
+    def test_hay_pieza_de_color_FALSE_VACIA_EN_JUEGO(self):
+        t:Tablero = leer_tablero([
+                '-r----rr', #7
+                '-mrh----', #6
+                '-r---r--', #5
+                'd-EH---c', #4
+                '-M--hD-d', #3
+                '-R-e----', #2
+                '---H-R-C', #1
+                'R-R---RR', #0
+                 #01234567
+             ])
+        self.assertFalse(hay_pieza_de_color(t, Posicion(0, 1), DORADO))
+    
 
 #### Ejercicio 3
 
@@ -242,7 +402,7 @@ class test_hay_pieza_amiga_vecina(unittest.TestCase):
               '--drRR--', #3
               '-HD-H--m', #2
               '--r-RCc-', #1
-              're---r--', #0
+              're---r--', #0 
               #01234567
             ])
         self.assertTrue(hay_pieza_amiga_vecina(t, Posicion(4, 3)))
@@ -259,7 +419,6 @@ class test_hay_pieza_amiga_vecina(unittest.TestCase):
               #01234567
             ])
         self.assertFalse(hay_pieza_amiga_vecina(t, Posicion(4, 3)))
-
 class test_hay_pieza_enemiga_mas_debil_hacia(unittest.TestCase):
 
     def test_hay_pieza_enemiga_mas_debil_hacia(self):
@@ -658,7 +817,7 @@ class test_puede_realizar_movimiento(unittest.TestCase):
 class test_activar_trampas(unittest.TestCase):
 
     def test_activar_trampas_ok(self):
-        t0 = leer_tablero([
+        t0:Tablero = leer_tablero([
                '-eRD--rd', #7
                '--------', #6
                'H-r--E--', #5
@@ -669,7 +828,7 @@ class test_activar_trampas(unittest.TestCase):
                'c-D---R-', #0
                #01234567
              ])
-        t1 = leer_tablero([
+        t1:Tablero = leer_tablero([
                '-eRD--rd', #7
                '--------', #6
                'H-------', #5
@@ -678,6 +837,197 @@ class test_activar_trampas(unittest.TestCase):
                'R-------', #2
                'R-------', #1
                'c-D---R-', #0
+               #01234567
+             ])
+        t2:Tablero = activar_trampas(t0)
+        self.assertNotEqual(t0, t1)
+        self.assertEqual(t2, t1)
+
+    def test_trampas_vacias_no_cambia(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r------r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'R------r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        self.assertEqual(activar_trampas(t0), t0)
+
+    def test_amiga_vecina_en_cada_direccion_no_se_saca(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r-ercd-r', #5
+               'cD-hR-eM', #4
+               'RhRrD-cH', #3
+               'R-H--M-r', #2
+               'RC-HERDR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        self.assertEqual(activar_trampas(t0), t0)
+
+    def test_vecina_enemiga_no_protege(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r----dEr', #5
+               'cD-hR-eM', #4
+               'RhrrD-cH', #3
+               'R-H----r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t1:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r-----Er', #5
+               'cD-hR-eM', #4
+               'RhrrD-cH', #3
+               'R------r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t2:Tablero = activar_trampas(t0)
+        self.assertNotEqual(t0, t1)
+        self.assertEqual(t2, t1)
+
+    def test_amiga_en_diagonal_o_a_dos_casillas_no_protege(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r-e-r--r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'R----M-r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t1:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r---r--r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'R------r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t2:Tablero = activar_trampas(t0)
+        self.assertNotEqual(t0, t1)
+        self.assertEqual(t2, t1)
+
+    def test_las_cuatro_trampas_sin_amigas(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r-e--D-r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'R-H--m-r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t1:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r------r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'R------r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t2:Tablero = activar_trampas(t0)
+        self.assertNotEqual(t0, t1)
+        self.assertEqual(t2, t1)
+
+    def test_una_trampa_con_amiga_y_otra_sin(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r----h-r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'RRH----r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t1:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r------r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'RRH----r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t2:Tablero = activar_trampas(t0)
+        self.assertNotEqual(t0, t1)
+        self.assertEqual(t2, t1)
+
+    def test_trampa_vacia_con_piezas_alrededor(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rr-rr-rr', #6
+               'r------r', #5
+               'cD-hR-eM', #4
+               'RhRrD-cH', #3
+               'Rm-r---r', #2
+               'RCHHE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        self.assertEqual(activar_trampas(t0), t0)
+
+    def test_enemiga_y_amiga_a_la_vez(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rrRrr-rr', #6
+               'r-h----r', #5
+               'cDrhR-eM', #4
+               'Rh-rD-cH', #3
+               'R------r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        self.assertEqual(activar_trampas(t0), t0)
+
+    def test_dos_se_quedan_y_dos_se_sacan(self):
+        t0:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rrcrr-rr', #6
+               'r-d--D-r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'RRH-Mm-r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
+               #01234567
+             ])
+        t1:Tablero = leer_tablero([
+               'emhhddcc', #7
+               'rrcrr-rr', #6
+               'r-d----r', #5
+               'cD-hR-eM', #4
+               'Rh-rD-cH', #3
+               'RRH-M--r', #2
+               'RC-HE-DR', #1
+               'RMHDECHR', #0
                #01234567
              ])
         t2 = activar_trampas(t0)
