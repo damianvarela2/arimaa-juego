@@ -763,7 +763,7 @@ def es_inicio_de_turno(j: Juego, col: Color) -> bool:
 def hay_figura_de_color(t: Tablero, pos: Posicion, f: Figura, col: Color) -> bool:
     """Indica si en la casilla especificada del tablero existe una pieza con esa figura y color.
 
-    PRE: True
+    PRE: posicion_en_tablero(pos) y tablero_bien_formado(t)
 
     Args:
         t (Tablero): Matriz de casillas.
@@ -889,7 +889,7 @@ def hay_ganador_determinado(j : Juego) -> bool:
 def ganador_del_juego(j : Juego) -> Color:
     """Devuelve el color del jugador que gano la partida.
 
-    PRE: TRUE
+    PRE: hay_ganador_determinado(j)
 
     Args:
         j (Juego): juego a evaluar.
