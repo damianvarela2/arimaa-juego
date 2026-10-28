@@ -50,23 +50,30 @@ class test_tablero_bien_formado(unittest.TestCase):
 
     def test_filas_insuficientes(self):
         """Prueba que un tablero con menos de 8 filas devuelva False."""
-        t: Tablero = [["VACÍA"] * 8 for _ in range(7)]
+        t: Tablero = [[VACIA] * 8 for _ in range(7)]
         self.assertFalse(tablero_bien_formado(t))
 
     def test_mas_filas(self):
         """Prueba que un tablero con más de 8 filas devuelva False."""
-        t: Tablero = [["VACÍA"] * 8 for _ in range(9)]
+        t: Tablero = [[VACIA] * 8 for _ in range(9)]
         self.assertFalse(tablero_bien_formado(t))
 
     def test_fila_corta(self):
         """Prueba un tablero con 8 filas pero con una fila de 3 columnas."""
-        t: Tablero = [["VACÍA"] * 8 for _ in range(7)]
-        t.append(["VACÍA", "VACÍA", "VACÍA"])
+        t: Tablero = [[VACIA] * 8 for _ in range(7)]
+        t.append([VACIA, VACIA, VACIA])
         self.assertFalse(tablero_bien_formado(t))
 
     def test_tablero_vacio(self):
         """Prueba el caso borde de una lista vacía."""
-        self.assertFalse(tablero_bien_formado([]))    
+        self.assertFalse(tablero_bien_formado([]))
+
+    def test_fila_larga(self):
+        """Prueba un tablero con 8 filas pero con una fila de 9 columnas."""
+        t: Tablero = [[VACIA] * 8 for _ in range(7)]
+        t.append([VACIA] * 9)
+        self.assertFalse(tablero_bien_formado(t))
+  
 
 class test_posicion_en_tablero(unittest.TestCase):
 
@@ -149,6 +156,12 @@ class test_juego_bien_formado(unittest.TestCase):
         j: Juego = Juego(tablero_8x8_vacio(), DORADO, MAX_PASOS)
         self.assertFalse(juego_bien_formado(j))
 
+    def test_juego_valido_con_3_pasos(self):
+        """Prueba un juego válido en posición inicial con 3 pasos consumidos."""
+        j: Juego = Juego(tablero_8x8_vacio(), DORADO, 3)
+        self.assertTrue(juego_bien_formado(j))
+
+
 #### Ejercicio 2
 
 class test_posicion_vecina_hacia(unittest.TestCase):
@@ -224,6 +237,8 @@ class test_casilla_en_posicion(unittest.TestCase):
               #01234567
             ])
         self.assertEqual(casilla_en_posicion(t, Posicion(1, 0)), VACIA)
+
+    
 
 class test_hay_casilla_vacia(unittest.TestCase):
 
@@ -369,6 +384,23 @@ class test_hay_casilla_vacia_hacia(unittest.TestCase):
                   #01234567
                 ])
             self.assertFalse(hay_casilla_vacia_hacia(t, Posicion(0, 0), NORTE))
+    def test_hay_casilla_vacia_hacia_fuera_tablero(self):
+        t = leer_tablero([
+            '-r----rr', #7
+            '-mrh----', #6
+            '-r---r--', #5
+            'd-EH---c', #4
+            '-M--hD-d', #3
+            '-R-e----', #2
+            '---H-R-C', #1
+            'R-R---RR', #0
+            #01234567
+            ])
+        self.assertFalse(hay_casilla_vacia_hacia(t, Posicion(0, 0), SUR))
+        self.assertFalse(hay_casilla_vacia_hacia(t, Posicion(0, 0), OESTE))
+        self.assertFalse(hay_casilla_vacia_hacia(t, Posicion(7, 7), NORTE))
+        self.assertFalse(hay_casilla_vacia_hacia(t, Posicion(7, 7), ESTE))
+
 
 class test_hay_pieza_amiga_vecina(unittest.TestCase):
 
@@ -398,6 +430,7 @@ class test_hay_pieza_amiga_vecina(unittest.TestCase):
               #01234567
             ])
         self.assertFalse(hay_pieza_amiga_vecina(t, Posicion(4, 3)))
+        self.assertFalse(hay_pieza_amiga_vecina(t,Posicion(7,7)))
 class test_hay_pieza_enemiga_mas_debil_hacia(unittest.TestCase):
 
     def test_hay_pieza_enemiga_mas_debil_hacia(self):
@@ -427,6 +460,13 @@ class test_hay_pieza_enemiga_mas_debil_hacia(unittest.TestCase):
               #01234567
             ])
         self.assertFalse(hay_pieza_enemiga_mas_debil_hacia(t, Posicion(1, 3), OESTE))
+        self.assertFalse(hay_pieza_enemiga_mas_debil_hacia(t, Posicion(2, 7), NORTE))
+        self.assertFalse(hay_pieza_enemiga_mas_debil_hacia(t, Posicion(3, 7), OESTE))
+        self.assertFalse(hay_pieza_enemiga_mas_debil_hacia(t, Posicion(5, 4), SUR))
+        self.assertFalse(hay_pieza_enemiga_mas_debil_hacia(t, Posicion(0, 0), OESTE))
+
+
+
 class test_hay_pieza_enemiga_mas_fuerte_vecina(unittest.TestCase):
 
     def test_hay_pieza_enemiga_mas_fuerte_vecina(self):
@@ -442,6 +482,22 @@ class test_hay_pieza_enemiga_mas_fuerte_vecina(unittest.TestCase):
               #01234567
             ])
         self.assertTrue(hay_pieza_enemiga_mas_fuerte_vecina(t, Posicion(3, 1)))
+    def test_hay_pieza_enemiga_mas_fuerte_vecina_no(self):
+        t = leer_tablero([
+              'R-e--mRr', #7
+              '------dE', #6
+              'h--Rr-RR', #5
+              'c--R-C--', #4
+              '-rCHDrr-', #3
+              '----rc--', #2
+              'h-R-M-R-', #1
+              'rr-D-dH-', #0
+              #01234567
+            ])
+        self.assertFalse(hay_pieza_enemiga_mas_fuerte_vecina(t, Posicion(7, 2)))
+        self.assertFalse(hay_pieza_enemiga_mas_fuerte_vecina(t, Posicion(1, 4)))
+        self.assertFalse(hay_pieza_enemiga_mas_fuerte_vecina(t, Posicion(5, 3)))
+        self.assertFalse(hay_pieza_enemiga_mas_fuerte_vecina(t, Posicion(5, 0)))
 
 class test_hay_pieza_congelada(unittest.TestCase):
 
@@ -458,10 +514,24 @@ class test_hay_pieza_congelada(unittest.TestCase):
               #01234567
             ])
         self.assertTrue(hay_pieza_congelada(t, Posicion(6, 1)))
+    def test_hay_pieza_congelada_false(self):
+        t = leer_tablero([
+              '--d--H-D', #7
+              '-hMc--r-', #6
+              '--r--C-H', #5
+              '--------', #4
+              '-CeD----', #3
+              '---R----', #2
+              '--------', #1
+              '--------', #0
+              #01234567
+            ])
+        self.assertFalse(hay_pieza_congelada(t, Posicion(3, 3)))
+        self.assertFalse(hay_pieza_congelada(t, Posicion(5, 7)))
+        self.assertFalse(hay_pieza_congelada(t, Posicion(3, 2)))
+        self.assertFalse(hay_pieza_congelada(t, Posicion(0, 0)))
 
 #### Ejercicio 4
-#hay que probar, que no haya pieza de color, que haya pieza congelada, que la direccion de movimiento no este habilitada, que los pasos esten todos consumidos y esto para cada accion
-#que se pueda hacer todo para cada accion
 class test_puede_realizar_movimiento(unittest.TestCase):
 
     def test_mover_a_secas_ok(self):
@@ -1185,6 +1255,34 @@ class test_realizar_movimiento(unittest.TestCase):
         j0:Juego = Juego(t0_trampa, PLATEADO, 2)
         jN:Juego = Juego(tN_trampa, DORADO, 0)
         m:Movimiento = Movimiento(EMPUJAR, Posicion(3, 2), [NORTE, NORTE])
+        self.assertTrue(puede_realizar_movimiento(j0, m))
+        self.assertEqual(realizar_movimiento(j0, m), jN)
+    def test_amiga_se_va(self):
+        t0_trampa: Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'c-ddhh-e', #6
+               '--C-----', #5
+               '-RE-----', #4
+               '--------', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        tN_trampa: Tablero = leer_tablero([
+               'rrrr-rrr', #7
+               'c-ddhh-e', #6
+               '--------', #5
+               '-R------', #4
+               '--E-----', #3
+               '--------', #2
+               'EMHHDDCC', #1
+               'RRRR-RRR', #0
+               #01234567
+             ])
+        j0:Juego = Juego(t0_trampa, DORADO, 0)
+        jN:Juego = Juego(tN_trampa, DORADO, 1)
+        m:Movimiento = Movimiento(MOVER_A_SECAS, Posicion(4, 2), [SUR])
         self.assertTrue(puede_realizar_movimiento(j0, m))
         self.assertEqual(realizar_movimiento(j0, m), jN)
 
