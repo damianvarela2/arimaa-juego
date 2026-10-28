@@ -36,6 +36,7 @@ def copiar_tablero(t:Tablero)->Tablero:
 #### Ejercicio 1
 
 #tablero_bien formado
+#AUXILIAR
 def compruebo_anchos(t: Tablero) -> bool:
     """
     Indica si todas las filas del tablero tienen exactamente la longitud igual al ANCHO.
@@ -53,7 +54,7 @@ def compruebo_anchos(t: Tablero) -> bool:
         if len(fila) != ANCHO:
             res=False
     return res
-
+#AUXILIAR
 def columnas(t:Tablero, indice_columna: int) -> list[Casilla]:
     """
     Devuelve una lista con los elementos de una columna específica del tablero.
@@ -71,7 +72,7 @@ def columnas(t:Tablero, indice_columna: int) -> list[Casilla]:
     for indice_fila in range(len(t)):
         columna.append(t[indice_fila][indice_columna])
     return columna
-
+#AUXILIAR
 def compruebo_altos(t: Tablero) -> bool:
     """
     Indica si todas las columnas del tablero tienen exactamente la longitud igual al ALTO.
@@ -126,7 +127,7 @@ def posicion_en_tablero(pos : Posicion) -> bool:
 
 
 #movimiento_bien_formado
-
+#aux
 def accion_valida(acc:Accion) -> bool:
     """
     Indica si una acción dada pertenece al conjunto de acciones válidas del juego.
@@ -146,7 +147,7 @@ def accion_valida(acc:Accion) -> bool:
             res=True
     return res
 
-
+#aux
 def origen_valido(pos_origen:Posicion)->bool:
     """
     Indica si la posicion de origen dada es valida.
@@ -160,7 +161,7 @@ def origen_valido(pos_origen:Posicion)->bool:
         True si pos_origen es una posicion válida, False en caso contrario.
     """
     return posicion_en_tablero(pos_origen)  
-
+#aux
 def direcciones_validas(pasos:list[Direccion])->bool:
     """
     Indica si todas los direcciones pertenecen al conjunto de direcciones válidas del juego.
@@ -179,7 +180,7 @@ def direcciones_validas(pasos:list[Direccion])->bool:
         if paso not in direcciones_validas:
             res=False
     return res
-
+#aux
 def validar_catidad_pasos(pasos: list[Direccion], acc: Accion) -> bool:
     """
     Indica si la cantidad de direcciones de la secuencia coincide exactamente 
@@ -199,7 +200,6 @@ def validar_catidad_pasos(pasos: list[Direccion], acc: Accion) -> bool:
     pasos_MOVER_A_SECAS:int = 1
     pasos_ARRASTRAR_o_EMPUJAR:int = 2
     return ((acc == MOVER_A_SECAS and cant_pasos == pasos_MOVER_A_SECAS) or ((acc == ARRASTRAR or acc == EMPUJAR) and cant_pasos == pasos_ARRASTRAR_o_EMPUJAR))
-
 
 def movimiento_bien_formado(m : Movimiento) -> bool:
     """
@@ -744,10 +744,161 @@ def realizar_movimiento(j : Juego, m : Movimiento) -> Juego:
 
 
 #### Ejercicio 7
+#AUXILIAR
+def es_inicio_de_turno(j: Juego, col: Color) -> bool:
+    """
+    Indica si es el inicio del turno para el jugador del color especificado 
 
+    PRE: True
+
+    Args:
+        j (Juego): juego a evaluar.
+        col (Color): El color del jugador.
+
+    Returns:
+        True si es el turno de col y j.pasos_consumidos == 0, False en caso contrario.
+    """
+    return j.turno == col and j.pasos_consumidos == 0 
+#AUXILIAR
+def hay_figura_de_color(t: Tablero, pos: Posicion, f: Figura, col: Color) -> bool:
+    """Indica si en la casilla especificada del tablero existe una pieza con esa figura y color.
+
+    PRE: True
+
+    Args:
+        t (Tablero): Matriz de casillas.
+        pos (Posicion): (fila, columna) a consultar.
+        f (Figura): Tipo de figura a buscar.
+        col (Color): Color del jugador.
+
+    Returns:
+        True si la casilla contiene la pieza dada, False en caso contrario.
+    """
+    res: bool = False
+    c: Casilla = t[pos.fila][pos.columna]
+    if c != VACIA:
+        res = c.figura == f and c.color == col
+    return res
+#AUXILIAR
+def hay_conejo_en_tablero(j: Juego, col: Color) -> bool:
+    """Verifica si el jugador col conserva al menos un conejo sobre el tablero.
+
+    PRE: True
+    Args:
+        j (Juego): juego a evaluar.
+        col (Color): Color del jugador consultado.
+
+    Returns:
+        True si existe al menos una casilla ocupada por un CONEJO del color col, False si no hay conejo de color col.
+    """
+    res: bool = False
+    for fila in range(ALTO):
+        for columna in range(ANCHO):
+            pos = Posicion(fila, columna)
+            if hay_figura_de_color(j.tablero, pos, CONEJO, col):
+                res = True
+    return res
+  
+
+#AUXILIAR
+def hay_conejo_en_fila_inicial_oponente(j: Juego, col: Color) -> bool:
+    """Verifica si un conejo del jugador col ha alcanzado la fila inicial de su oponente.
+
+    PRE: True
+
+    Args:
+        j (Juego): juego a evaluar.
+        col (Color): Color del jugador evaluado.
+
+    Returns:
+        True si hay un conejo propio en la fila inicial rival.
+    """
+    res: bool = False
+    col_oponente: Color = oponente(col)
+    fila_oponente: int = 0 if col_oponente == DORADO else 7
+    for columna in range(ANCHO):
+        pos = Posicion(fila_oponente,columna)
+        if hay_figura_de_color(j.tablero, pos, CONEJO, col):
+            res = True
+    return res
+
+
+#AUXILIAR
+def reune_condiciones_de_ganar (j : Juego , col : Color ) -> bool:
+    """Evalúa si el jugador col cumple alguna de las dos condiciones para ganar.
+
+    PRE: True
+
+    Args:
+        j (Juego): juego a evaluar.
+        col (Color): Color del jugador evaluado.
+
+    Returns:
+        True si tiene un conejo en la meta rival o si el rival perdió sus conejos.
+    """
+    return hay_conejo_en_fila_inicial_oponente(j,col) or not hay_conejo_en_tablero(j,oponente(col))
+
+
+#aux
+def reune_condiciones_de_ganar_exclusivas(j : Juego , col : Color) -> bool:
+    """Evalúa si col cumple las condiciones de ganar y su oponente no.
+
+    PRE: True
+
+    Args:
+        j (Juego): juego a evaluar.
+        col (Color): Color del jugador evaluado.
+
+    Returns:
+        True si solo col cumple condiciones de ganar.
+    """
+    return reune_condiciones_de_ganar(j,col) and not reune_condiciones_de_ganar(j,oponente(col))
+
+
+
+#aux
+def es_jugador_ganador (j : Juego , col : Color ) -> bool:
+    """Indica si el jugador de color col es el ganador del juego.
+
+    PRE: True
+
+    Args:
+        j (Juego): juego a evaluar.
+        col (Color): El color del jugador a evaluar.
+
+    Returns:
+        True si col cumple con las condiciones para ganar el juego,False en caso contrario.
+    """
+    return (es_inicio_de_turno(j,oponente(col)) and reune_condiciones_de_ganar(j,col)) or (es_inicio_de_turno(j,col) and reune_condiciones_de_ganar_exclusivas(j,col))
+
+#EJERCICIO 7
 def hay_ganador_determinado(j : Juego) -> bool:
-    raise Exception("No implementado")
+    """Indica si existe al menos un jugador cumple para ser el ganador del juego.
+
+    PRE: True
+
+    Args:
+        j (Juego): juego a evaluar.
+
+    Returns:
+        True si alguno de los dos jugadores cumple para ganar la partida, False en caso contrario.
+    """
+    return es_jugador_ganador(j,DORADO) or es_jugador_ganador(j,PLATEADO)
+
 
 def ganador_del_juego(j : Juego) -> Color:
-    raise Exception("No implementado")
+    """Devuelve el color del jugador que gano la partida.
+
+    PRE: TRUE
+
+    Args:
+        j (Juego): juego a evaluar.
+
+    Returns:
+        DORADO si el ganador es el jugador Dorado, PLATEADO en caso contrario.
+    """
+    res: Color = PLATEADO
+    if es_jugador_ganador(j,DORADO):
+        res = DORADO    
+    return res    
 
