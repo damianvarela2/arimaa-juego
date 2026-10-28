@@ -365,7 +365,7 @@ class test_hay_pieza_de_color(unittest.TestCase):
 class test_hay_casilla_vacia_hacia(unittest.TestCase):
 
     def test_hay_casilla_vacia_hacia(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               '-r----rr', #7
               '-mrh----', #6
               '-r---r--', #5
@@ -378,7 +378,7 @@ class test_hay_casilla_vacia_hacia(unittest.TestCase):
             ])
         self.assertTrue(hay_casilla_vacia_hacia(t, Posicion(0, 0), NORTE))
     def test_no_hay_casilla_vacia_hacia(self):
-            t = leer_tablero([
+            t: Tablero = leer_tablero([
                   '-r----rr', #7
                   '-mrh----', #6
                   '-r---r--', #5
@@ -394,7 +394,7 @@ class test_hay_casilla_vacia_hacia(unittest.TestCase):
 class test_hay_pieza_amiga_vecina(unittest.TestCase):
 
     def test_hay_pieza_amiga_vecina(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               'R-hRD-Rr', #7
               'M----d--', #6
               '-h-rrCR-', #5
@@ -407,7 +407,7 @@ class test_hay_pieza_amiga_vecina(unittest.TestCase):
             ])
         self.assertTrue(hay_pieza_amiga_vecina(t, Posicion(4, 3)))
     def test_no_hay_pieza_amiga_vecina(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               'R-hRD-Rr', #7
               'M----d--', #6
               '-h--rCR-', #5
@@ -422,7 +422,7 @@ class test_hay_pieza_amiga_vecina(unittest.TestCase):
 class test_hay_pieza_enemiga_mas_debil_hacia(unittest.TestCase):
 
     def test_hay_pieza_enemiga_mas_debil_hacia(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               '--Hdm---', #7
               'r--HhC--', #6
               'e---R-C-', #5
@@ -436,7 +436,7 @@ class test_hay_pieza_enemiga_mas_debil_hacia(unittest.TestCase):
         self.assertTrue(hay_pieza_enemiga_mas_debil_hacia(t, Posicion(1, 3), OESTE))
 
     def test_no_hay_pieza_enemiga_mas_debil_hacia(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               '--Hdm---', #7
               'r--HhC--', #6
               'e---R-C-', #5
@@ -451,7 +451,7 @@ class test_hay_pieza_enemiga_mas_debil_hacia(unittest.TestCase):
 class test_hay_pieza_enemiga_mas_fuerte_vecina(unittest.TestCase):
 
     def test_hay_pieza_enemiga_mas_fuerte_vecina(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               'R-e--mRr', #7
               '------dE', #6
               'h--Rr-RR', #5
@@ -467,7 +467,7 @@ class test_hay_pieza_enemiga_mas_fuerte_vecina(unittest.TestCase):
 class test_hay_pieza_congelada(unittest.TestCase):
 
     def test_hay_pieza_congelada(self):
-        t = leer_tablero([
+        t: Tablero = leer_tablero([
               '--d--H-D', #7
               '-hMc--r-', #6
               '--r--C-H', #5
@@ -1257,23 +1257,23 @@ class test_hay_ganador_determinado(unittest.TestCase):
         self.assertTrue(hay_ganador_determinado(j))
 
 
-# class test_ganador_del_juego(unittest.TestCase):
+class test_ganador_del_juego(unittest.TestCase):
 
-#     def test_promueve_conejo_dorado_turno_del_oponente(self):
-#         t = leer_tablero([
-#               'rr----Rr', #7
-#               'c-----me', #6
-#               '---Ed-R-', #5
-#               '-M---R--', #4
-#               '---R----', #3
-#               '-rrrr---', #2
-#               '-H---DCC', #1
-#               'R-----RR', #0
-#               #01234567
-#             ])
-#         j = Juego(t, PLATEADO, 0)
-#         self.assertTrue(hay_ganador_determinado(j))
-#         self.assertEqual(ganador_del_juego(j), DORADO)
+     def test_promueve_conejo_dorado_turno_del_oponente(self):
+         t: Tablero = leer_tablero([
+               'rr----Rr', #7
+               'c-----me', #6
+               '---Ed-R-', #5
+               '-M---R--', #4
+               '---R----', #3
+               '-rrrr---', #2
+               '-H---DCC', #1
+               'R-----RR', #0
+               #01234567
+             ])
+         j: Juego = Juego(t, PLATEADO, 0)
+         self.assertTrue(hay_ganador_determinado(j))
+         self.assertEqual(ganador_del_juego(j), DORADO)
 
 
 if __name__ == '__main__':
